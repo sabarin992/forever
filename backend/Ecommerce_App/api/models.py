@@ -1,0 +1,418 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.db import models
+from django.utils import timezone
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from decimal import Decimal
+
+
+# Custom User
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, first_name, last_name, phone_number, password=None, password2=None):
+        if not email:
+            raise ValueError("Email is required")
+        email = self.normalize_email(email)
+        user = self.model(email=email, first_name=first_name, last_name=last_name, phone_number=phone_number)
+
+        if password and password2 and password != password2:
+            raise ValueError("Passwords do not match")
+
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, first_name, last_name, phone_number, password=None):
+        user = self.create_user(email, first_name, last_name, phone_number, password)
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    email = models.EmailField(unique=True)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    phone_number = models.CharField(max_length=15, unique=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
+
+    def __str__(self):
+        return self.email
+    
+    
+
+# Category
+# ========
+
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(null=True,blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.name
+    
+
+# Product
+# =======
+
+class Product(models.Model):
+    category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name='products') # one category will have many products
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    is_active = models.BooleanField(default=True) # status
+    is_deleted = models.BooleanField(default=False) #soft delete
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(CustomUser,on_delete=models.CASCADE,related_name="created_products")
+    
+    def __str__(self):
+        return self.name
+
+
+# Product Variants
+# ================
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="variants")
+    size = models.CharField(max_length=100,null=True,blank=True)
+    color = models.CharField(max_length=100,null=True,blank=True)
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10,decimal_places=2)
+    stock_quantity = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f'product:{self.product.name} size:{self.size} color:{self.color}'
+    
+
+# Product Image
+# =============
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_image")
+    variant = models.ForeignKey(ProductVariant,on_delete=models.SET_NULL,null=True,blank=True,related_name="variant_images")
+    image = models.ImageField(upload_to="images")
+    is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Image for {self.product.name} - Variant : {self.variant.name if self.variant else 'None'}"
+    
+
+# Address Model
+# ================
+
+class Address(models.Model):
+    """
+    Model to store address details.
+    """
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="addresses",
+        verbose_name="User"
+    )
+    name=models.CharField(max_length=100,verbose_name='name',null=True)
+    phone_no = models.CharField(max_length=15, null=True, blank=True, verbose_name="Phone Number")
+    street_address = models.CharField(max_length=255, verbose_name="Street Address")
+    city = models.CharField(max_length=100, verbose_name="City")
+    state = models.CharField(max_length=100, verbose_name="State")
+    pin_code = models.CharField(max_length=10, verbose_name="Pin Code")
+    country = models.CharField(max_length=100, verbose_name="Country")
+    is_primary = models.BooleanField(default=False) 
+
+    def save(self, *args, **kwargs):
+        if self.is_primary:
+            Address.objects.filter(user=self.user, is_primary=True).update(is_primary=False)
+        elif not self.pk and not Address.objects.filter(user=self.user).exists():
+            self.is_primary = True
+        super().save(*args, **kwargs)
+
+    def _str_(self):
+        return f"{self.street_address}, {self.city}, {self.state}, {self.country}"
+    
+
+
+class CartItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='cart_items')
+    quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=10, blank=True,null=True, default="")
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # Validate quantity
+        if self.quantity > 5:
+            raise ValidationError("Maximum 5 items allowed per product variant.")
+        if self.quantity > self.product_variant.stock_quantity:
+            raise ValidationError("Quantity exceeds available stock.")
+        # Use the get_discounted_price() method to calculate the price
+        price_to_use = self.product_variant.price
+        # Calculate total amount
+        self.total_amount = price_to_use*self.quantity
+        super().save(*args, **kwargs)
+
+
+    def get_variant_image(self):
+        primary_image = self.product_variant.variant_images.filter(is_primary=True).first()
+        return primary_image.image.url if primary_image else None
+
+    def _str_(self):
+        return f"{self.product_variant.product.name} - {self.product_variant} x {self.quantity}"
+    
+
+# Order
+# ======
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+
+        ('PENDING', 'Pending'),
+        ('CONFIRMED', 'Confirmed'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELED', 'Canceled'),
+        ('RETURN_PENDING', 'Return pending'),
+        ('RETURNED','Returned'),
+        ('PAYMENT_PENDING', 'Payment Pending'),
+    ]
+    PAYMENT_CHOICES = [
+        ('COD', 'Cash On Delivery'),
+        ('RAZORPAY', 'Razorpay'),
+        ('WALLET', 'Wallet'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
+    payment = models.CharField(max_length=10, choices=PAYMENT_CHOICES, default='COD')
+    shipping_address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True, blank=True)
+    order_date = models.DateField(auto_now_add=True)
+    delivery_date = models.DateField(auto_now=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    shipping_chrg = models.FloatField(default=0)
+    order_no = models.CharField(max_length=100, unique=True,null=True)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=10, default='INR')
+    razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_payment_status = models.CharField(max_length=20, default='PENDING')
+    razorpay_signature = models.CharField(max_length=255, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Order"
+        verbose_name_plural = "Orders"
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # For new orders
+            # Get coupon discount from session if exists
+            request = kwargs.pop('request', None)
+            if request and request.session.get('discount_amount'):
+                try:
+                    # Apply discount to total
+                    discount = Decimal(request.session.get('discount_amount', '0'))
+                    self.total = self.total - discount
+                    
+                    # Clear coupon data from session
+                    request.session.pop('coupon_id', None)
+                    request.session.pop('discount_amount', None)
+                    request.session.pop('new_total', None)
+                except Exception:
+                    pass
+
+        # Handle Razorpay payment status
+        if self.razorpay_payment_status != 'CONFIRMED' and self.payment == 'razorpay':
+            self.status = 'PAYMENT_PENDING'
+
+        super().save(*args, **kwargs)
+
+    def _str_(self):
+        return f"Order {self.order_no} - {self.status}"
+
+
+# Order Item
+# ==========
+class OrderItem(models.Model):
+    # Fields for the OrderItem model
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('CONFIRMED', 'Confirmed'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELED', 'Canceled'),
+        ('RETURN_PENDING', 'Return Pending'),
+        ('RETURNED', 'Returned'),
+        ('PAYMENT_PENDING', 'Payment Pending'),
+    ]
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    total_amount = models.FloatField()
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING'
+    )
+
+    def _str_(self):
+        return f"Item: {self.product_name} - {self.quantity}"
+
+    class Meta:
+        verbose_name = "Order Item"
+        verbose_name_plural = "Order Items"
+
+
+# OrderItemReturn
+# ===============
+class OrderItemReturn(models.Model):
+    order_item = models.OneToOneField(OrderItem, on_delete=models.CASCADE, related_name='order_item_return')
+    sizing_issues = models.BooleanField(default=False)
+    damaged_item = models.BooleanField(default=False)
+    incorrect_order = models.BooleanField(default=False)
+    delivery_delays = models.BooleanField(default=False)
+    other_reason = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    approved = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # If it's a new return request
+            self.order_item.status = 'RETURN_PENDING'
+            self.order_item.save()
+        super().save(*args, **kwargs)
+
+    def _str_(self):
+        return f"Return for Order Item #{self.order_item.id} - Created on {self.created_at}"
+    
+
+# Coupon
+# ======
+
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=20, unique=True)
+    description = models.TextField(null=True,blank=True)
+    discount_percent = models.IntegerField(default=0)  # or use amount
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    active = models.BooleanField(default=True)
+    minimum_order_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    is_listed=models.BooleanField(default=True)
+
+    def is_valid(self):
+        now = timezone.now()
+        return self.active and self.valid_from <= now <= self.valid_to
+
+    def __str__(self):
+        return self.code
+    
+
+
+# CouponUsage
+class CouponUsage(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE)
+    used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.first_name}-{self.coupon.code}'
+    
+
+# WishLish
+# =========
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product_variant = models.ForeignKey('ProductVariant', on_delete=models.CASCADE)
+    added_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'product_variant')
+
+    def _str_(self):
+        return f"{self.user.username}'s wishlist item: {self.product_variant}"
+    
+
+# Wallet
+# ======
+
+
+class Wallet(models.Model):
+    user=models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='wallet'
+    )
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+
+    def _str_(self):
+        return f"{self.user.email}'s Wallet" 
+
+    def credit(self, amount, description=""):
+        """
+        Add amount to the wallet balance and log a credit transaction.
+        """
+        if amount <= 0:
+            raise ValueError("Amount must be positive for credit.")
+        self.balance += amount
+        self.save()
+        self.transactions.create(
+            transaction_type='credit',
+            amount=amount,
+            description=description
+        )
+
+    def debit(self, amount, description=""):
+        """
+        Deduct amount from the wallet balance and log a debit transaction.
+        """
+        if amount <= 0:
+            raise ValueError("Amount must be positive for debit.")
+        if self.balance < amount:
+            raise ValueError("Insufficient balance for this transaction.")
+        self.balance -= amount
+        self.save()
+        self.transactions.create(
+            transaction_type='debit',
+            amount=amount,
+            description=description
+        )
+
+# Transactions
+# ============
+
+class Transaction(models.Model):
+    TRANSACTION_TYPES = (
+        ('credit', 'Credit'),
+        ('debit', 'Debit'),
+    )
+
+    wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='transactions')
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"{self.transaction_type.capitalize()} - ₹{self.amount}"
+    
+    
+
+
+    
+    

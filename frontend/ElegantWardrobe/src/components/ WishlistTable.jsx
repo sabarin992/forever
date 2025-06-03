@@ -1,0 +1,88 @@
+"use client"
+
+const WishlistTable = ({ items, onRemove, onAddToCart,currency }) => {
+  return (
+    <div className="w-full overflow-x-auto">
+      {/* Header - Desktop */}
+      <div className="hidden md:grid md:grid-cols-6 border-b py-4 px-4 text-gray-600">
+        <div className="col-span-1">Product Image</div>
+        <div className="col-span-1">Product Name</div>
+        <div className="col-span-1 text-center">Unit Price</div>
+        <div className="col-span-1 text-center">Size</div>
+        <div className="col-span-1 text-center">Color</div>
+        <div className="col-span-1 text-center">Actions</div>
+      </div>
+
+      {/* Items */}
+      <div className="divide-y">
+        {items.map((item) => (
+          <div key={item.id} className="grid grid-cols-2 md:grid-cols-6 py-4 items-center">
+            {/* Product Image and Name */}
+           
+              <div className="relative">
+               
+                <img
+                  src={item.image || "/placeholder.svg"}
+                  alt={item.name}
+                  className="w-20 h-24 object-cover bg-gray-100"
+                />
+              </div>
+              <div className="ml-2">
+                <h3 className="text-gray-700">{item.name}</h3>
+              </div>
+          
+
+            {/* Price */}
+            <div className="text-right md:text-center px-4 md:px-0">
+              {item.originalPrice && item.originalPrice > item.price ? (
+                <div>
+                  <span className="text-gray-400 line-through mr-2">€{item.originalPrice.toFixed(2)}</span>
+                  <span className="text-gray-700">€{item.price.toFixed(2)}</span>
+                </div>
+              ) : (
+                <span className="text-gray-700">{currency}{item.price.toFixed(2)}</span>
+              )}
+            </div>
+
+            {/* Stock Status
+            <div className="text-right md:text-center px-4 md:px-0 text-gray-600 mt-2 md:mt-0">
+              {item.inStock ? "In Stock" : "Out of Stock"}
+            </div> */}
+
+
+
+             {/* size */}
+             <div className="text-right md:text-center px-4 md:px-0 text-gray-600 mt-2 md:mt-0">
+              {item.size}
+            </div>
+
+            {/* color */}
+            <div className="text-right md:text-center px-4 md:px-0 text-gray-600 mt-2 md:mt-0">
+              {item.color}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => onAddToCart(item.id,item.size,item.color)}
+                // disabled={!item.inStock}
+                className="w-full md:w-auto bg-black text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-gray-700"
+              >
+                ADD TO CART
+              </button>
+              <button
+                onClick={() => onRemove(item.id)}
+                // disabled={!item.inStock}
+                className="w-full md:w-auto bg-red-600 text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-red-800"
+              >
+               x
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export default WishlistTable
