@@ -30,6 +30,9 @@ const LatestCollection = () => {
               image={item.image}
               name={item.name}
               price={item.price}
+              finalPrice={item.discounted_amount}
+              realPrice={item.price}
+              discountedPercentage={item.discounted_percentage}
             />
           );
         })}

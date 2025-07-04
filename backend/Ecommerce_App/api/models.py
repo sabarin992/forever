@@ -87,14 +87,34 @@ class ProductVariant(models.Model):
     size = models.CharField(max_length=100,null=True,blank=True)
     color = models.CharField(max_length=100,null=True,blank=True)
     name = models.CharField(max_length=255)
+
     price = models.DecimalField(max_digits=10,decimal_places=2)
+    product_discount = models.FloatField(default=0)  # final applied discount %
+    final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) 
+
     stock_quantity = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def update_discount(self):
+        """Calculate and store final price with max valid discount."""
+        product_offer = self.product.offer if hasattr(self.product, 'offer') and self.product.offer.is_valid() else None
+        category_offer = self.product.category.offer if hasattr(self.product.category, 'offer') and self.product.category.offer.is_valid() else None
+        product_discount = product_offer.discount_percentage if product_offer else 0
+        category_discount = category_offer.discount_percentage if category_offer else 0
+
+        max_discount = max(product_discount, category_discount)
+
+        self.product_discount = max_discount
+        discount_amount = self.price * (Decimal(str(max_discount)) / Decimal('100'))
+        self.final_price = self.price - discount_amount
+        self.save()
     
     def __str__(self):
         return f'product:{self.product.name} size:{self.size} color:{self.color}'
+    
+   
     
 
 # Product Image
@@ -162,7 +182,7 @@ class CartItem(models.Model):
         if self.quantity > self.product_variant.stock_quantity:
             raise ValidationError("Quantity exceeds available stock.")
         # Use the get_discounted_price() method to calculate the price
-        price_to_use = self.product_variant.price
+        price_to_use = self.product_variant.final_price
         # Calculate total amount
         self.total_amount = price_to_use*self.quantity
         super().save(*args, **kwargs)
@@ -410,6 +430,51 @@ class Transaction(models.Model):
 
     def _str_(self):
         return f"{self.transaction_type.capitalize()} - ₹{self.amount}"
+    
+
+# ProductOffer
+class ProductOffer(models.Model):
+    product = models.OneToOneField('Product', on_delete=models.CASCADE, related_name='offer')
+    discount_percentage = models.FloatField(help_text="Discount % (0-100)")
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    active = models.BooleanField(default=True)
+
+    def is_valid(self):
+        now = timezone.now()
+        print(f'valid_result = {self.active and self.valid_from <= now <= self.valid_to}')
+        return self.active and self.valid_from <= now <= self.valid_to
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        print(self.product.variants.all())
+        for variant in self.product.variants.all():
+            variant.update_discount()
+
+    def __str__(self):
+        return f"{self.product.name} - {self.discount_percentage}%"
+
+# CategoryOffer
+class CategoryOffer(models.Model):
+    category = models.OneToOneField('Category', on_delete=models.CASCADE, related_name='offer')
+    discount_percentage = models.FloatField(help_text="Discount % (0-100)")
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    active = models.BooleanField(default=True)
+
+    def is_valid(self):
+        now = timezone.now()
+        return self.active and self.valid_from <= now <= self.valid_to
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        for product in self.category.products.all():
+            for variant in product.variants.all():
+                variant.update_discount()
+
+    def __str__(self):
+        return f"{self.category.name} - {self.discount_percentage}%"
+
     
     
 

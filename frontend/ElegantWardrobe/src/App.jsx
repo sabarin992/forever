@@ -51,6 +51,13 @@ import AdminDashboard from "./admin/pages/AdminDashBoard";
 import ForgotPasswordOtpVerificationForm from "./components/ForgotPasswordOtpVerificationForm";
 import ForgotPasswordSentOtpForm from "./components/ForgotPasswordSentOtpForm";
 import ForgotPasswordForm from "./components/ForgotPasswordForm";
+import AdminOfferPage from "./admin/offer/pages/AdminOffer";
+import ProductOfferPage from "./admin/offer/pages/ProductOfferPage";
+import CategoryOfferPage from "./admin/offer/pages/CategoryOfferPage";
+import AddProductOffer from "./admin/offer/pages/AddProductOffer";
+import EditProductOffer from "./admin/offer/pages/EditProductOffer";
+import AddCategoryOffer from "./admin/offer/pages/AddCategoryOffer";
+import EditCategoryOffer from "./admin/offer/pages/EditCategoryOffer";
 
 const App = () => {
   const [token, setToken] = useState("");
@@ -178,6 +185,17 @@ const App = () => {
             <Route path="order-details" element={<AdminOrderDetailsPage />} />
             <Route path="" element={<AdminDashboard/>} />
             <Route path="coupon-management" element={<CouponManager />} />
+
+            {/* offer */}
+            <Route path="offer" element={<AdminOfferPage/>}>
+              <Route path="product-offer" element={<ProductOfferPage/>}/>
+              <Route path="category-offer" element={<CategoryOfferPage/>}/>
+              <Route path="add-product-offer" element={<AddProductOffer/>}/>
+              <Route path="add-category-offer" element={<AddCategoryOffer/>}/>
+              <Route path="edit-product-offer" element={<EditProductOffer/>}/>
+              <Route path="edit-category-offer" element={<EditCategoryOffer/>}/>
+            </Route>
+
           </Route>
           {/* )}  */}
         </Route>

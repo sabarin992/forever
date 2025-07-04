@@ -16,6 +16,8 @@ const RelatedProducts = ({productId}) => {
       try {
         const res = await api.get(`/related_products/${productId}/`)
         setRelated(res.data)
+        console.log(res.data);
+        
         
       } catch (error) {
         console.log(error.message)
@@ -42,6 +44,9 @@ const RelatedProducts = ({productId}) => {
               image={item.image}
               name={item.name}
               price={item.price}
+              finalPrice={item.discounted_amount}
+              realPrice={item.price}
+              discountedPercentage={item.discounted_percentage}
             />
           );
         })}

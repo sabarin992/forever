@@ -63,12 +63,10 @@ const [render, setRender] = useState(false);
           setNewCategory({ name: "", description: "", isListed: true });
           toast.success("Category added successfully");
             setRender(true);
-        } else {
-         toast.error("Error adding category");
-         setRender(false);
-        }
+        } 
       } catch (error) {
-        toast.error("Error adding category");
+        
+        toast.error(error?.response?.data?.error);
         setRender(false);
       }
     };

@@ -1,10 +1,19 @@
-from django.urls import path
+from django.urls import path,include
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
+from rest_framework.routers import DefaultRouter
+
+
+router = DefaultRouter()
+router.register(r'product_offers',views.ProductOfferViewSet)
+router.register(r'category_offers',views.CategoryOfferViewSet)
+
+
 
 
 urlpatterns = [
-    path('',views.index,name="index"),
+    path('',include(router.urls)),
+    path('index/',views.index,name="index"),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('add_product/',views.add_product,name="add_product"),
     path('edit_product/<int:id>/',views.edit_product,name="edit_product"),
@@ -52,6 +61,7 @@ urlpatterns = [
 
     # order
     path('place_order/',views.place_order,name="place_order"),
+    path('update_order_payment/',views.update_order_payment,name="update_order_payment"),
     path('get_all_orders/',views.get_all_orders,name="get_all_orders"),
     path('order_details/<int:id>/',views.order_details,name="order_details"),
     path('cancel_order/<int:id>/',views.cancel_order,name="cancel_order"),
@@ -60,6 +70,8 @@ urlpatterns = [
     path('return_order_item/<int:order_item_id>/',views.return_order_item,name="return_order_item"),
     path('return_reasons/<int:order_item_id>/',views.return_reasons,name="return_reasons"),
     path('handle_return_approval/<int:order_item_id>/',views.handle_return_approval,name="handle_return_approval"),
+    path('retry_payment/<int:order_id>/',views.retry_payment,name="retry_payment"),
+    path('verify_retry_payment/',views.verify_retry_payment,name="verify_retry_payment"),
 
     # razor pay 
     path('create_order/',views.create_order,name="create_order"),
@@ -99,6 +111,9 @@ urlpatterns = [
     path('forgot_password_send_otp/',views.forgot_password_send_otp),
     path('forgot_password_verify_otp/',views.forgot_password_verify_otp),
     path('reset_forgot_password/',views.reset_forgot_password),
+
+  
+
     
 
    

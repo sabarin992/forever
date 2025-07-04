@@ -12,10 +12,11 @@ const Cart = () => {
   const {
     currency,cartData,totalAmount,
     quantity,setQuantity,setCartId,
-    removeCartItem,activePage,setActivePage,hasNext,hasPrevious,totalPages
+    removeCartItem,activePage,setActivePage,hasNext,hasPrevious,totalPages,cartError
   } = useContext(ShopContext)
   const navigate = useNavigate()
-
+ 
+  
 
   // const removeCartItem = async(id)=>{
   //     try {
@@ -59,7 +60,7 @@ const Cart = () => {
                   setQuantity(e.target.value);
                   
                 }
-                  } className='border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 ' type="number" min={1} max={5} defaultValue={productData.quantity} />
+                  } className='border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1 ' type="number" min={1} max={5} defaultValue={productData.quantity} value={!cartError?productData.quantity:productData.quantity-1+1}/>
                 <img onClick={()=>{removeCartItem(productData.id)}} className='w-4 mr-4 sm:w-5 cursor-pointer' src={assets.bin_icon} alt="" />
               </div>
             )

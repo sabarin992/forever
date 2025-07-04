@@ -7,6 +7,7 @@ import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 import api from "../api";
 import Pagination from "../components/Pagination";
+import CategoryFilter from "@/components/CategoryFilter";
 
 const Collection = () => {
   const { products, setProducts, search, showSearch } = useContext(ShopContext);
@@ -21,7 +22,7 @@ const Collection = () => {
   const [totalPages, setTotalPages] = useState(0);
 
   console.log(products);
-  
+
   // toggle category
   const toggleCategory = (e) => {
     if (selectedCategories.includes(e.target.value)) {
@@ -78,6 +79,8 @@ const Collection = () => {
       });
 
       setProducts(res.data.results);
+      console.log(res.data.results);
+
       setHasNext(res.data.has_next);
       setHasPrevious(res.data.has_previous);
       setTotalPages(res.data.total_pages);
@@ -177,6 +180,17 @@ const Collection = () => {
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
       {/* filter option */}
+      <CategoryFilter
+        showFilter={showFilter}
+        allCategories={allCategories}
+        selectedCategories={selectedCategories}
+        toggleCategory={toggleCategory}
+        setShowFilter={setShowFilter}
+
+      />
+
+      {/* end */}
+      {/* filter option
       <div className="min-w-60">
         <p
           onClick={() => {
@@ -191,7 +205,7 @@ const Collection = () => {
             alt=""
           />
         </p>
-        {/* Category Filter */}
+        Category Filter
         <div
           className={`border border-gray-300 pl-5 py-3 mt-6 ${
             showFilter ? "" : "hidden"
@@ -213,7 +227,7 @@ const Collection = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Right Side */}
       <div className="flex-1">
@@ -242,7 +256,9 @@ const Collection = () => {
                 id={item.id}
                 image={item.image}
                 name={item.name}
-                price={item.price}
+                finalPrice={item.discounted_amount}
+                realPrice={item.price}
+                discountedPercentage={item.discounted_percentage}
               />
             );
           })}
@@ -262,4 +278,3 @@ const Collection = () => {
 };
 
 export default Collection;
-

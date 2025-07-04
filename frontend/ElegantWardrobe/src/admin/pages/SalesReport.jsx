@@ -52,6 +52,8 @@ const SalesReport = () => {
       }
 
       const response = await api.get(url);
+      console.log(response.data);
+      
       setReportData(response.data);
     } catch (error) {
       console.error("Error fetching sales report:", error);

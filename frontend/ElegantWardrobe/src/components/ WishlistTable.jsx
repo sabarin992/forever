@@ -64,7 +64,9 @@ const WishlistTable = ({ items, onRemove, onAddToCart,currency }) => {
             {/* Actions */}
             <div className="flex gap-4">
               <button
-                onClick={() => onAddToCart(item.id,item.size,item.color)}
+                onClick={() => {onAddToCart(item.id,item.size,item.color)// here we want to add quantity. (onAddToCart(item.id,item.size,item.color,item.quantity))
+                }
+                }
                 // disabled={!item.inStock}
                 className="w-full md:w-auto bg-black text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-gray-700"
               >

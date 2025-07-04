@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ProductVariant,ProductImage,CustomUser,Coupon
+from .models import ProductVariant,ProductImage,CustomUser,Coupon,ProductOffer,CategoryOffer
 from django.core.files.base import ContentFile
 import base64
 import uuid
@@ -98,3 +98,39 @@ class CouponSerializer(serializers.ModelSerializer):
             if data['valid_from'] >= data['valid_to']:
                 raise serializers.ValidationError("End date must be after start date")
         return data
+    
+
+# Product Offer Serializer
+
+class ProductOfferSerializer(serializers.ModelSerializer):
+    product_name = serializers.ReadOnlyField(source='product.name')
+    class Meta:
+        model = ProductOffer
+        fields = "__all__"
+    
+    def validate(self, data):
+        valid_from = data.get('valid_from')
+        valid_to = data.get('valid_to')
+        if valid_from and valid_to and valid_from > valid_to:
+            raise serializers.ValidationError({
+                'valid_from': "The Valid From date cannot be later than the Valid To date.",
+                'valid_to': "The 'Valid To' date cannot be earlier than the 'Valid From' date."
+            })
+        return data
+
+class CategoryOfferSerializer(serializers.ModelSerializer):
+    category_name = serializers.ReadOnlyField(source='category.name')
+    class Meta:
+        model = CategoryOffer
+        fields = "__all__"
+    
+    def validate(self, data):
+        valid_from = data.get('valid_from')
+        valid_to = data.get('valid_to')
+        if valid_from and valid_to and valid_from > valid_to:
+            raise serializers.ValidationError({
+                'valid_from': "The Valid From date cannot be later than the Valid To date.",
+                'valid_to': "The 'Valid To' date cannot be earlier than the 'Valid From' date."
+            })
+        return data
+    

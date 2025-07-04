@@ -11,7 +11,7 @@ const WishList = () => {
 
   const {currency,wishlistItems,isAddToCart,setIsAddToCart,isChangeWishList,setIsChangeWishList} = useContext(ShopContext)
 
- 
+ console.log(wishlistItems)
 
   const handleRemove = async(id) => {
    try {
@@ -24,8 +24,8 @@ const WishList = () => {
     // Implement your remove logic here
   };
 
-  const handleAddToCart = async(itemId,size,color) => {
-        console.log("itemId", itemId);
+  const handleAddToCart = async(itemId,size,color,quantity) => {
+        console.log("Quantity", quantity);
     
         if (!size) {
           toast.error("Select the product size");
@@ -39,6 +39,7 @@ const WishList = () => {
           const res = await api.post(`/add_to_cart/`, {
             product_variant: itemId,
             size: size,
+            quantity:quantity
           });
           toast.success(res.data);
           setIsAddToCart(!isAddToCart);

@@ -34,6 +34,7 @@ const ShopContextProvider = (props) => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
+  const [cartError,setCartError] = useState(false)
 
   // Fetch products when ShopContextProvider mounts
   useEffect(() => {
@@ -41,6 +42,8 @@ const ShopContextProvider = (props) => {
       try {
         const res = await api.get("/products/");
         setProducts(res.data);
+        console.log(res.data);
+        
       } catch (error) {
         console.error("Error fetching products:", error.message);
       }
@@ -58,9 +61,20 @@ const ShopContextProvider = (props) => {
             quantity: quantity,
           });
           setIsChangeQuantity(!isChangeQuantity);
+          setCartError(false)
           // console.log(res.data);
         } catch (error) {
-          console.log(error);
+          setCartError(true)
+          if (error?.response?.data?.error) {
+            const match = error?.response?.data?.error.match(/'([^']+)'/);
+            const cleanMessage = match
+              ? match[1]
+              : error?.response?.data?.error;
+
+            console.log(cleanMessage);
+            toast.error(cleanMessage);
+            // console.log(error?.response?.data?.error);
+          }
         }
       } else {
       }
@@ -149,6 +163,7 @@ const ShopContextProvider = (props) => {
     isChangeWishList,
     setIsChangeWishList,
     wishListCount,
+    cartError
 
   };
 
