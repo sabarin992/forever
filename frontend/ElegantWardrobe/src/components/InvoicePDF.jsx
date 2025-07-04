@@ -121,8 +121,8 @@ const InvoicePDF = ({ order }) => (
             <Text style={styles.tableCol}>{item.variant.size}</Text>
             <Text style={styles.tableCol}>{item.variant.color}</Text>
             <Text style={styles.tableCol}>{item.quantity}</Text>
-            <Text style={styles.tableCol}>₹{item.price}</Text>
-            <Text style={styles.tableCol}>₹{(item.quantity * item.price).toFixed(2)}</Text>
+            <Text style={styles.tableCol}>₹{item.price/item.quantity}</Text>
+            <Text style={styles.tableCol}>₹{(item.quantity * (item.price/item.quantity)).toFixed(2)}</Text>
           </View>
         ))}
       </View>

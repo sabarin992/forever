@@ -180,6 +180,7 @@ class CartItem(models.Model):
         if self.quantity > 5:
             raise ValidationError("Maximum 5 items allowed per product variant.")
         if self.quantity > self.product_variant.stock_quantity:
+            print(f'cartitem quantity = {self.quantity}\nProduct_Variant_quantitys = {self.product_variant.stock_quantity}')
             raise ValidationError("Quantity exceeds available stock.")
         # Use the get_discounted_price() method to calculate the price
         price_to_use = self.product_variant.final_price

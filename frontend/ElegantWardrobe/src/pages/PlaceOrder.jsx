@@ -159,8 +159,8 @@ const PlaceOrder = () => {
       const res = await api.post(`/place_order/`, {
         address_id: shipAddress,
         total: discount
-          ? (totalAmount+delivery_fee) - (totalAmount * (discount / 100))
-          : totalAmount+delivery_fee,
+          ? (totalAmount) - (totalAmount * (discount / 100))
+          : totalAmount,
           couponCode:couponCode,
           payment_method:method,
           payment_status:status
@@ -197,8 +197,8 @@ const PlaceOrder = () => {
     try {
       const response = await api.post("create_order/", {
         totalAmount: discount
-          ? (totalAmount + delivery_fee) - (totalAmount * (discount / 100))
-          : totalAmount + delivery_fee,
+          ? (totalAmount) - (totalAmount * (discount / 100))
+          : totalAmount,
       });
 
       const data = response.data;
@@ -222,8 +222,8 @@ const PlaceOrder = () => {
             const res = await api.post(`/place_order/`, {
               address_id: shipAddress,
               total: discount
-                ? (totalAmount + delivery_fee) - (totalAmount * (discount / 100))
-                : totalAmount + delivery_fee,
+                ? (totalAmount ) - (totalAmount * (discount / 100))
+                : totalAmount,
               payment_method: method,
               payment_status: 'CONFIRMED',
               couponCode: couponCode,
@@ -253,8 +253,8 @@ const PlaceOrder = () => {
               const res = await api.post(`/place_order/`, {
                 address_id: shipAddress,
                 total: discount
-                  ? (totalAmount + delivery_fee) - (totalAmount * (discount / 100))
-                  : totalAmount + delivery_fee,
+                  ? (totalAmount ) - (totalAmount * (discount / 100))
+                  : totalAmount,
                 payment_method: method,
                 payment_status: 'PAYMENT_PENDING',
                 couponCode: couponCode,

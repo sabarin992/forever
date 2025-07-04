@@ -133,7 +133,7 @@ export default function AdminUsers() {
                   </span>
                 </td>
                 <td className="py-3 px-4 border-b border-gray-200 flex gap-2">
-                  <button
+                  {/* <button
                     onClick={() => {
                       navigate("/admin/edit-user/", {
                         state: {
@@ -148,7 +148,7 @@ export default function AdminUsers() {
                     className="flex items-center px-3 py-1.5 text-white bg-black hover:bg-gray-800 rounded-lg text-sm"
                   >
                     ✏️ Edit
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => {
                       if (user.is_active) {

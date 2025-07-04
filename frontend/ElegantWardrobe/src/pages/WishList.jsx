@@ -44,7 +44,22 @@ const WishList = () => {
           toast.success(res.data);
           setIsAddToCart(!isAddToCart);
         } catch (error) {
-          toast.error(error?.response?.data);
+          
+          // console.log(error);
+          if (error?.response?.data?.error){
+            const match = error?.response?.data?.error.match(/'([^']+)'/);
+            const cleanMessage = match
+              ? match[1]
+              : error?.response?.data?.error;
+
+            console.log(cleanMessage);
+            toast.error(cleanMessage);
+          }
+          else{
+            toast.error(error?.response?.data);
+          }
+          
+
         }
 
   };

@@ -15,10 +15,11 @@ const Orders= () => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
-
+const [isLoading, setIsLoading] = useState(true);
   useEffect(()=>{
    const getOrders = async()=>{
     try {
+      setIsLoading(true);
       const res = await api.get('get_all_orders',{params:{page:activePage}});
       setOrders(res.data.results)
       setHasNext(res.data.has_next)
@@ -29,9 +30,26 @@ const Orders= () => {
       console.log(error.message);
       
     }
+    finally {
+        setTimeout(() => setIsLoading(false), 800); // Add loading delay for smooth transition
+      }
    }
    getOrders()
   },[activePage])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="relative">
+          <div className="w-20 h-20 border-4 border-gray-200 rounded-full animate-spin"></div>
+          <div className="w-20 h-20 border-4 border-black border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="w-3 h-3 bg-black rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='border-t pt-16'>

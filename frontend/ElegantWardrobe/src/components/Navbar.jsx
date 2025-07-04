@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
-import { ACCESS_TOKEN } from "../constants";
+import { ACCESS_TOKEN,REFRESH_TOKEN } from "../constants";
 
 const Navbar = () => {
   const [visisble, setVisible] = useState(false);
@@ -11,8 +11,13 @@ const Navbar = () => {
 
   const handleLogout = () => {
     localStorage.removeItem(ACCESS_TOKEN);
+    localStorage.removeItem(REFRESH_TOKEN);
     navigate("/login");
   };
+
+  const token = localStorage.getItem(ACCESS_TOKEN)
+  console.log(`AccessToken = ${token}`);
+  
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -46,7 +51,10 @@ const Navbar = () => {
           className="w-5 cursor-pointer "
           alt=""
         />
-        <div className="group relative">
+        
+        {
+        token?
+          <div className="group relative">
           <Link to="/login">
             <img
               className="w-5 cursor-pointer"
@@ -76,6 +84,9 @@ const Navbar = () => {
             </div>
           </div>
         </div>
+        :null
+      }
+       
         <Link to="/wishlist" className="relative">
           <svg
             // onClick={onClick}

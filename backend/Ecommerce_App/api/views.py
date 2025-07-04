@@ -308,12 +308,13 @@ def google_login(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
+    
     if request.method == 'POST':
+        print(request.data)
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
-        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -512,6 +513,8 @@ def send_otp(request):
     """
     API endpoint to generate and send OTP to an email.
     """
+
+    print(request.data)
     email = request.data.get("email")
     phone_number = request.data.get("phone_number")
     password1 = request.data.get("password1")
@@ -520,7 +523,8 @@ def send_otp(request):
         return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
     
     is_email_exist = CustomUser.objects.filter(email=email).exists()
-    is_phone_number_exist = CustomUser.objects.filter(phone_number=phone_number)
+    is_phone_number_exist = CustomUser.objects.filter(phone_number=phone_number).exists()
+    print(f'phone_number = {phone_number} and is_exit = {is_phone_number_exist}')
     if is_email_exist:
         return Response({'error':'Email Already Exist'},status=status.HTTP_400_BAD_REQUEST)
     elif is_phone_number_exist:
@@ -529,6 +533,7 @@ def send_otp(request):
         return Response({'error':"Password Don't Match"},status=status.HTTP_400_BAD_REQUEST)
 
     otp = generate_otp()
+    print(otp)
     
     # Store OTP in Redis with a 10-minute expiry
     r.set(email, otp, ex=60)
@@ -547,6 +552,7 @@ def verify_otp(request):
     """
     email = request.data.get("email")
     otp_entered = request.data.get("otp")
+    print(f'otp_entered = {otp_entered}')
 
     if not email or not otp_entered:
         return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -1070,8 +1076,7 @@ def add_to_cart(request):
     if product_variant.stock_quantity <= 0:
         return Response('The product is out of stock.', status=status.HTTP_400_BAD_REQUEST)
 
-    # Remove from wishlist if exists
-    Wishlist.objects.filter(user=request.user, product_variant=product_variant).delete()
+    
 
     size = request.data["size"]
     # print(request.data)
@@ -1080,6 +1085,7 @@ def add_to_cart(request):
     #     quantity = int(request.data["quantity"])
 
     cart_item = CartItem.objects.filter(user=request.user, product_variant=product_variant, size=size).first()
+    print(f'Product Variant Stock Quantity = {product_variant.stock_quantity}')
 
     if cart_item:
         try:
@@ -1089,6 +1095,8 @@ def add_to_cart(request):
         except ValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     else:
+        # Remove from wishlist if exists
+        Wishlist.objects.filter(user=request.user, product_variant=product_variant).delete()
         try:
             CartItem.objects.create(
                 user=user,
@@ -1941,9 +1949,11 @@ def add_to_wishlist(request):
 
 
     # Check if the product is already in the cart
-    cart_item_exists = CartItem.objects.filter(user=user, product_variant=product_variant).exists()
-    if cart_item_exists:
-        return Response({"error": "Product is already in the cart"}, status=status.HTTP_400_BAD_REQUEST)
+    # ===========================================
+
+    # cart_item_exists = CartItem.objects.filter(user=user, product_variant=product_variant).exists()
+    # if cart_item_exists:
+    #     return Response({"error": "Product is already in the cart"}, status=status.HTTP_400_BAD_REQUEST)
 
     # Check if the product is already in the wishlist
     wish_list_exists = Wishlist.objects.filter(user=user, product_variant=product_variant).exists()
