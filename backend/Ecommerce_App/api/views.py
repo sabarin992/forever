@@ -660,7 +660,7 @@ def filter_product(request):
     # Subquery: get one variant per product
     product_ids = Product.objects.values('id')
     first_variant_subquery = ProductVariant.objects.filter(
-        product_id=OuterRef('id')
+        product_id=OuterRef('id'),is_active=True
     ).order_by('created_at')
 
     # Get one variant for each product
@@ -827,10 +827,15 @@ def list_unlist_category(request, id):
 @api_view(['PUT'])
 @permission_classes([AllowAny])
 def edit_category(request, id):
-    name = request.data["name"]
-    if Category.objects.filter(name__iexact=name).exists():
-        return Response({'error': 'Category with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
     category = Category.objects.get(pk=id)
+    name = request.data["name"]
+    # print(category.name.lower(),name.lower())
+    if category.name.lower() == name.lower():
+        print('Same')
+        pass
+    elif Category.objects.filter(name__iexact=name).exists():
+        return Response({'error': 'Category with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+    
     category.name = request.data["name"]
     category.description = request.data["description"]
     category.save()
