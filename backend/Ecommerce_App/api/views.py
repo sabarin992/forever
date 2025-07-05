@@ -387,6 +387,7 @@ def add_product(request):
 @permission_classes([AllowAny])
 def edit_product(request,id):
 
+    print(f'product_id = {id}')
     product_variant = ProductVariant.objects.get(pk = id)
     if request.method == 'GET':
         product_data ={
