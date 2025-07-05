@@ -18,7 +18,7 @@ export default function OrderConfirmation() {
     const getOrderDetails = async () => {
       try {
         const res = await api.get(`/order_details/${orderId}/`);
-        console.log(res.data.items);
+        console.log(res.data);
         
         setOrderDetails(res.data);
       } catch (error) {}

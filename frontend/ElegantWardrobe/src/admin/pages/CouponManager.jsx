@@ -1,8 +1,12 @@
+
+
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CouponForm from '../components/CouponForm';
 import CouponList from '../components/CouponList';
 import api from '@/api';
+import { toast } from 'react-toastify';
 
 
 const CouponManager = () => {
@@ -38,6 +42,7 @@ const CouponManager = () => {
       const response = await api.post('/coupons/', couponData);
       setCoupons([...coupons, response.data]);
       setIsFormOpen(false);
+      toast.success('Coupon Successfully Created')
     } catch (err) {
       setError('Failed to create coupon');
       console.error('Error creating coupon:', err);
@@ -53,6 +58,7 @@ const CouponManager = () => {
       ));
       setEditingCoupon(null);
       setIsFormOpen(false);
+      toast.success('Coupon Successfully Updated')
     } catch (err) {
       setError('Failed to update coupon');
       console.error('Error updating coupon:', err);

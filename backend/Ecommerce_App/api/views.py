@@ -827,6 +827,9 @@ def list_unlist_category(request, id):
 @api_view(['PUT'])
 @permission_classes([AllowAny])
 def edit_category(request, id):
+    name = request.data["name"]
+    if Category.objects.filter(name__iexact=name).exists():
+        return Response({'error': 'Category with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
     category = Category.objects.get(pk=id)
     category.name = request.data["name"]
     category.description = request.data["description"]
@@ -2207,7 +2210,7 @@ def generate_sales_report(request):
         order_date__gte=start_date,
         order_date__lte=end_date,
         status__in=['DELIVERED']  # Only include completed orders
-    )
+    ).order_by('-order_date')
     
     # Calculate sales metrics
     total_orders = orders.count()
