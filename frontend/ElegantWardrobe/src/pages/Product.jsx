@@ -238,6 +238,8 @@ const Product = () => {
 
               {/* Price */}
               <div className="flex items-baseline gap-4">
+                {productData.discounted_amount != 0?
+                <>
                 <span className="text-4xl lg:text-5xl font-bold text-gray-900">
                   {currency}
                   {productData.discounted_amount}
@@ -246,7 +248,7 @@ const Product = () => {
                   {currency}
                   {productData.price}
                 </span>
-                <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">
+                 <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">
                   {Math.round(
                     ((productData.price - productData.discounted_amount) /
                       productData.price) *
@@ -254,6 +256,16 @@ const Product = () => {
                   )}
                   % OFF
                 </span>
+                </>
+                :
+                <>
+                <span className="text-4xl lg:text-5xl font-bold text-gray-900">
+                  {currency}
+                  {productData.price}
+                </span>
+                </>
+                }
+               
               </div>
 
               {/* Description */}
