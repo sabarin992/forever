@@ -111,6 +111,33 @@ class ProductVariant(models.Model):
         self.final_price = self.price - discount_amount
         self.save()
     
+    def is_offer_valid(self, offer):
+        return offer and hasattr(offer, 'is_valid') and offer.is_valid()
+
+
+    def calculate_discount(self):
+        product_offer = self.product.offer if self.is_offer_valid(getattr(self.product, 'offer', None)) else None
+        category_offer = self.product.category.offer if self.is_offer_valid(getattr(self.product.category, 'offer', None)) else None
+
+        product_discount = product_offer.discount_percentage if product_offer else 0
+        category_discount = category_offer.discount_percentage if category_offer else 0
+
+        max_discount = max(product_discount, category_discount)
+
+        # ✅ Ensure self.price is Decimal
+        price = Decimal(str(self.price))  
+        discount_amount = price * (Decimal(str(max_discount)) / Decimal('100'))
+        final_price = price - discount_amount
+
+        return max_discount, final_price
+
+
+    def save(self, *args, **kwargs):
+        # Automatically calculate discount before saving
+        self.product_discount, self.final_price = self.calculate_discount()
+        super().save(*args, **kwargs)
+    
+    
     def __str__(self):
         return f'product:{self.product.name} size:{self.size} color:{self.color}'
     
@@ -227,6 +254,7 @@ class Order(models.Model):
     shipping_chrg = models.FloatField(default=0)
     order_no = models.CharField(max_length=100, unique=True,null=True)
     total = models.DecimalField(max_digits=10, decimal_places=2)
+    discounted_amount = models.DecimalField(max_digits=10, decimal_places=2,default=0)
     currency = models.CharField(max_length=10, default='INR')
     razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
     razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)

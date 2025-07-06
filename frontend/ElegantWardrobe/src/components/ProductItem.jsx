@@ -10,7 +10,7 @@ const ProductItem = ({ id, image, name, finalPrice, realPrice, discountedPercent
   const [isInWishlist, setIsInWishList] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
 
-  console.log(id);
+  console.log(finalPrice);
   
   const scrollToTop = () => {
     window.scrollTo({
@@ -110,6 +110,13 @@ const ProductItem = ({ id, image, name, finalPrice, realPrice, discountedPercent
           {/* Price Section */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              {finalPrice === 0?
+              <>
+              <span className="text-lg font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">
+                {currency} {realPrice}
+              </span>
+              </>:
+              <>
               <span className="text-lg font-bold text-gray-900 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">
                 {currency} {finalPrice}
               </span>
@@ -118,6 +125,8 @@ const ProductItem = ({ id, image, name, finalPrice, realPrice, discountedPercent
                   {currency} {realPrice}
                 </span>
               )}
+              </>
+              }
             </div>
             
             {discountedPercentage > 0 && (

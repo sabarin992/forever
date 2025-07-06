@@ -1,5 +1,6 @@
 import api from "@/api";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 const Coupon = ({ cartTotal, discount,setDiscount,couponCode,setCouponCode}) => {
   
@@ -15,7 +16,7 @@ const Coupon = ({ cartTotal, discount,setDiscount,couponCode,setCouponCode}) => 
       setDiscount(response.data.discount_percent);
       setAppliedCoupon(couponCode); // Store the applied code
     } catch (error) {
-      alert(error?.response?.data?.error || "Failed to apply coupon.");
+      toast.error(error?.response?.data?.error || "Failed to apply coupon.");
     }
   };
 

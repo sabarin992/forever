@@ -242,10 +242,7 @@ const Product = () => {
                   {currency}
                   {productData.discounted_amount}
                 </span>
-                {
-                  productData.discounted_amount !== productData.price ?
-                  <>
-                  <span className="text-2xl text-gray-400 line-through font-medium">
+                <span className="text-2xl text-gray-400 line-through font-medium">
                   {currency}
                   {productData.price}
                 </span>
@@ -257,9 +254,6 @@ const Product = () => {
                   )}
                   % OFF
                 </span>
-                  </>
-                  :null
-                }
               </div>
 
               {/* Description */}

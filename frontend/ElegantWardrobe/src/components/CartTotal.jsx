@@ -19,14 +19,20 @@ const CartTotal = ({totalAmount,discount}) => {
           </p>
         </div>
         <hr />
-        <div className="flex justify-between">
+
+        {/* Shipping Fee  */}
+        {/* ============= */}
+
+        {/* <div className="flex justify-between">
           <p>Shipping Fee</p>
           <p>
             {currency}
             {delivery_fee} 
           </p>
         </div>
-        <hr />
+
+        <hr /> */}
+
         {discount && <>
           <div className="flex justify-between">
           <p>Discount</p>
@@ -37,12 +43,28 @@ const CartTotal = ({totalAmount,discount}) => {
         </div>
         <hr />
         </>}
-        <div className="flex justify-between">
+
+        {/* If you want to add delivery fee+( reduce discount amount) to the total amount then use this code */}
+        {/* ================================================================================================ */}
+
+        {/* <div className="flex justify-between">
             <b>Total</b>
             <b>{currency} {!totalAmount? 0 
             : discount?(totalAmount+delivery_fee) - ((totalAmount)*(discount/100))
             :totalAmount+delivery_fee}.00</b>
+        </div> */}
+
+         {/* elif you want to add discount with total amount then use this code */}
+        {/* ========================================================================== */}
+
+        <div className="flex justify-between">
+            <b>Total</b>
+            <b>{currency} {!totalAmount? 0 
+            : discount?(totalAmount) - ((totalAmount)*(discount/100))
+            :totalAmount}.00</b>
         </div>
+
+
       </div>
     </div>
   );

@@ -304,20 +304,39 @@ const OrderDetails = () => {
                 {currency} {orderDetails.total}
               </span>
             </div>
-            <div className="flex justify-between">
+
+            {/* GST */}
+            {/* === */}
+
+            {/* <div className="flex justify-between">
               <span className="text-gray-600">GST (12%):</span>
               <span className="text-gray-800">
                 {currency} {(orderDetails.total * 0.12).toFixed(2)}
               </span>
-            </div>
-            <div className="flex justify-between">
+            </div> */}
+
+
+            {/* Shipping Address */}
+            {/* ================ */}
+
+            {/* <div className="flex justify-between">
               <span className="text-gray-600">Shipping:</span>
               <span className="text-gray-800">{currency} 40</span>
-            </div>
+            </div> */}
+
+            {/* Discounted Amount */}
+              {/* ================= */}
+
+              <div className="flex justify-between">
+                <span className="text-gray-600">Discounted Amount:</span>
+                <span className="text-gray-800">{currency}{orderDetails.discounted_amount}</span>
+              </div>
+
+
             <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
               <span>Total:</span>
               <span>
-                {currency} {(orderDetails.total + orderDetails.total * 0.12 + 40).toFixed(2)}
+                {currency}{orderDetails?.total-orderDetails?.discounted_amount}
               </span>
             </div>
           </div>

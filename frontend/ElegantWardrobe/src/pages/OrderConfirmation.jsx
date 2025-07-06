@@ -9,10 +9,10 @@ export default function OrderConfirmation() {
   const {currency} = useContext(ShopContext)
   const [orderDetails, setOrderDetails] = useState({});
   const location = useLocation();
-  const { orderId } = location.state;
+  const { orderId,discount } = location.state;
   const navigate = useNavigate()
 
-  
+  console.log(discount)
 
   useEffect(() => {
     const getOrderDetails = async () => {
@@ -125,18 +125,35 @@ export default function OrderConfirmation() {
                 <span className="text-gray-600">Items Total:</span>
                 <span className="text-gray-800">{currency}{orderDetails.total}</span>
               </div>
-              <div className="flex justify-between">
+
+              {/* GST */}
+              {/* === */}
+
+              {/* <div className="flex justify-between">
                 <span className="text-gray-600">GST (12%):</span>
                 <span className="text-gray-800">{currency}{(orderDetails.total*12)/100}</span>
-              </div>
-              <div className="flex justify-between">
+              </div> */}
+
+                {/* Shipping Fee */}
+                {/* ============ */}
+                
+              {/* <div className="flex justify-between">
                 <span className="text-gray-600">Shipping Fee:</span>
                 <span className="text-gray-800">{currency}100</span>
+              </div> */}
+
+              {/* Discounted Amount */}
+              {/* ================= */}
+
+              <div className="flex justify-between">
+                <span className="text-gray-600">Discounted Amount:</span>
+                <span className="text-gray-800">{currency}{orderDetails.discounted_amount}</span>
               </div>
+
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between font-semibold">
                   <span>Total Amount:</span>
-                  <span>₹{orderDetails.total+(orderDetails.total*12)/100+100}</span>
+                  <span>{currency}{orderDetails?.total-orderDetails?.discounted_amount}</span>
                 </div>
               </div>
             </div>

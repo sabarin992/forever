@@ -1190,20 +1190,11 @@ def place_order(request):
     payment_status = request.data.get('payment_status')
     coupon_code = request.data.get('couponCode')
     wallet = Wallet.objects.get(user=user)
+    discounted_amount=request.data['discounted_amount']
+
+    print(f'discounted_amount = {discounted_amount}')
     
-    # User coupon usage
-    if coupon_code:
-        try:
-            coupon = Coupon.objects.get(code=coupon_code)
-            usage, created = CouponUsage.objects.get_or_create(user=user, coupon=coupon)
-            if usage.used:
-                return Response({"error": "You have already applied this coupon."}, status=400)
-
-            usage.used = True
-            usage.save()
-
-        except Coupon.DoesNotExist:
-            return Response({"error": "Invalid coupon code."}, status=404)
+   
 
     if not cart_items.exists():
         return Response({'error': 'No items in the cart'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1221,11 +1212,26 @@ def place_order(request):
         if request.data['total'] > 1000:
             return Response({'error':'Order above Rs 1000 should not be allowed for COD'},status=status.HTTP_400_BAD_REQUEST)
     
+     # User coupon usage
+    if coupon_code:
+        try:
+            coupon = Coupon.objects.get(code=coupon_code)
+            usage, created = CouponUsage.objects.get_or_create(user=user, coupon=coupon)
+            if usage.used:
+                return Response({"error": "You have already applied this coupon."}, status=400)
+
+            usage.used = True
+            usage.save()
+
+        except Coupon.DoesNotExist:
+            return Response({"error": "Invalid coupon code."}, status=404)
+    
     # Create order
     order = Order.objects.create(user=user, shipping_address=address, total=request.data['total'])
     order_number = generate_order_number(order.id)
     order.order_no = order_number
     order.payment = payment_method if payment_method else 'COD'
+    order.discounted_amount = discounted_amount if discounted_amount else 0
     
     # Handle different payment methods and statuses
     if payment_method == 'RAZORPAY':
@@ -1497,6 +1503,7 @@ def order_details(request, id):
         "order_date": order.order_date.strftime('%d-%m-%Y'),
         "payment_method":order.payment,
         "total": order.total,
+        "discounted_amount":order.discounted_amount,
         "payment_status": order.status,
         "address": address,
         "items": order_items,

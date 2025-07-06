@@ -158,9 +158,17 @@ const PlaceOrder = () => {
     try {
       const res = await api.post(`/place_order/`, {
         address_id: shipAddress,
-        total: discount
-          ? (totalAmount) - (totalAmount * (discount / 100))
-          : totalAmount,
+        total:totalAmount,
+        discounted_amount: totalAmount * (discount / 100),
+
+
+        // totalAmount - (Discounted amount)
+        // ===================================
+
+        // total: discount
+        //   ? (totalAmount) - (totalAmount * (discount / 100))
+        //   : totalAmount,
+
           couponCode:couponCode,
           payment_method:method,
           payment_status:status
@@ -170,7 +178,7 @@ const PlaceOrder = () => {
         "Order Placed",
         "Your order has been successfully placed!"
       );
-      navigate("/order-success", { state: { orderId: res.data.order_id } });
+      navigate("/order-success", { state: { orderId: res.data.order_id,discount:discount } });
     } catch (error) {
       console.log(error.response.data);
       toast.error(error?.response?.data?.error)
@@ -196,6 +204,15 @@ const PlaceOrder = () => {
 
     try {
       const response = await api.post("create_order/", {
+
+        // totalAmount only
+        // ================
+
+        // totalAmount:totalAmount
+
+        // totalAmount - (Discounted amount)
+        // ===================================
+
         totalAmount: discount
           ? (totalAmount) - (totalAmount * (discount / 100))
           : totalAmount,
@@ -221,9 +238,17 @@ const PlaceOrder = () => {
 
             const res = await api.post(`/place_order/`, {
               address_id: shipAddress,
-              total: discount
-                ? (totalAmount ) - (totalAmount * (discount / 100))
-                : totalAmount,
+
+              // totalAmount - (Discounted amount)
+              // ===================================
+
+              // total: discount
+              //   ? (totalAmount ) - (totalAmount * (discount / 100))
+              //   : totalAmount,
+
+              // totalAmount only
+              total:totalAmount,
+              discounted_amount: totalAmount * (discount / 100),
               payment_method: method,
               payment_status: 'CONFIRMED',
               couponCode: couponCode,
@@ -252,9 +277,12 @@ const PlaceOrder = () => {
             try {
               const res = await api.post(`/place_order/`, {
                 address_id: shipAddress,
-                total: discount
-                  ? (totalAmount ) - (totalAmount * (discount / 100))
-                  : totalAmount,
+                // total: discount
+                //   ? (totalAmount ) - (totalAmount * (discount / 100))
+                //   : totalAmount,
+
+                total:totalAmount,
+                discounted_amount: totalAmount * (discount / 100),
                 payment_method: method,
                 payment_status: 'PAYMENT_PENDING',
                 couponCode: couponCode,
@@ -350,7 +378,7 @@ const PlaceOrder = () => {
 
       {/* ---------------- Right Side -------------- */}
       <div className="mt-8">
-        <div className="mt-8 min-w-80 ">
+        <div className="my-8 min-w-80 ">
           <CartTotal totalAmount={totalAmount} discount={discount} />
         </div>
         {/* coupon */}

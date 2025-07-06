@@ -78,7 +78,7 @@ const PaymentFailed = () => {
             // Update the existing order payment status
             const updateRes = await api.post(`/update_order_payment/`, {
               order_id: orderId,
-              payment_status: 'CONFIRMED',
+              payment_status: "CONFIRMED",
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
             });
@@ -90,7 +90,9 @@ const PaymentFailed = () => {
             navigate("/order-success", { state: { orderId: orderId } });
           } catch (error) {
             console.log(error.response?.data);
-            toast.error(error?.response?.data?.error || "Payment verification failed");
+            toast.error(
+              error?.response?.data?.error || "Payment verification failed"
+            );
             setIsRetrying(false);
           }
         },
@@ -152,14 +154,15 @@ const PaymentFailed = () => {
           <p>{message}</p>
         ) : (
           <p>
-            Sorry, there was an issue processing your payment for order
-            #{orderDetails?.order_no}. You can retry the payment below.
+            Sorry, there was an issue processing your payment for order #
+            {orderDetails?.order_no}. You can retry the payment below.
           </p>
         )}
         <p className="font-semibold mt-2">
           Note:{" "}
           <span className="font-normal">
-            Your order has been placed but payment is pending. Please complete the payment to confirm your order.
+            Your order has been placed but payment is pending. Please complete
+            the payment to confirm your order.
           </span>
         </p>
       </div>
@@ -185,7 +188,9 @@ const PaymentFailed = () => {
           <div className="text-center">
             <p className="text-gray-600 font-medium">Payment Status</p>
             <p className="text-red-500">
-              {orderDetails?.status === 'PAYMENT_PENDING' ? 'Payment Pending' : 'Failed'}
+              {orderDetails?.status === "PAYMENT_PENDING"
+                ? "Payment Pending"
+                : "Failed"}
             </p>
           </div>
         </div>
@@ -209,10 +214,12 @@ const PaymentFailed = () => {
               />
             </div>
             <div className="text-center md:text-left">
-              <h3 className="font-medium text-gray-900">{item?.product_name}</h3>
+              <h3 className="font-medium text-gray-900">
+                {item?.product_name}
+              </h3>
               <p className="text-gray-600">
-                Color: {item?.variant?.color} | Size: {item?.variant?.size} | Qty:{" "}
-                {item?.quantity}
+                Color: {item?.variant?.color} | Size: {item?.variant?.size} |
+                Qty: {item?.quantity}
               </p>
               <p className="font-semibold text-gray-900 mt-1">
                 ₹{item?.price?.toLocaleString("en-IN")}
@@ -248,37 +255,73 @@ const PaymentFailed = () => {
               {currency} {orderDetails?.total}
             </span>
           </div>
-          <div className="flex justify-between">
+
+          {/* GST */}
+          {/* === */}
+          
+          {/* <div className="flex justify-between">
             <span className="text-gray-600">GST (12%):</span>
             <span className="text-gray-900">
               {currency}
               {((orderDetails?.total * 12) / 100)?.toFixed(2)}
             </span>
-          </div>
-          <div className="flex justify-between">
+          </div> */}
+
+          {/* Shipping Fee  */}
+          {/* ============ */}
+
+          {/* <div className="flex justify-between">
             <span className="text-gray-600">Shipping Fee:</span>
             <span className="text-gray-900">₹100</span>
+          </div> */}
+
+          {/* discounted amount */}
+          {/* ================= */}
+
+          <div className="flex justify-between">
+            <span className="text-gray-600">Discounted Amount:</span>
+            <span className="text-gray-800">
+              {currency}
+              {orderDetails?.discounted_amount}
+            </span>
           </div>
-          <div className="flex justify-between pt-2 border-t border-gray-200 font-semibold">
+
+          {/* Total Amount */}
+          {/* ============= */}
+
+          <div className="border-t border-gray-200 pt-2">
+            <div className="flex justify-between font-semibold">
+              <span>Total Amount:</span>
+              <span>
+                {currency}
+                {orderDetails?.total - orderDetails?.discounted_amount}
+              </span>
+            </div>
+          </div>
+          {/* <div className="flex justify-between pt-2 border-t border-gray-200 font-semibold">
             <span className="text-gray-900">Total Amount:</span>
             <span className="text-gray-900">
               {currency}{" "}
-              {(orderDetails?.total + (orderDetails?.total * 12) / 100 + 100)?.toFixed(2)}
+              {(
+                orderDetails?.total +
+                (orderDetails?.total * 12) / 100 +
+                100
+              )?.toFixed(2)}
             </span>
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-4">
-        <button 
+        <button
           onClick={handleRetryPayment}
           disabled={isRetrying}
           className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white py-2 px-6 rounded-md font-medium transition-colors"
         >
           {isRetrying ? "Processing..." : "Retry Payment"}
         </button>
-        <button 
+        <button
           onClick={handleBackToOrders}
           className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-6 rounded-md font-medium transition-colors"
         >
