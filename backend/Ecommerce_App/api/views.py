@@ -534,7 +534,6 @@ def send_otp(request):
         return Response({'error':"Password Don't Match"},status=status.HTTP_400_BAD_REQUEST)
 
     otp = generate_otp()
-    print(otp)
     
     # Store OTP in Redis with a 10-minute expiry
     r.set(email, otp, ex=60)
