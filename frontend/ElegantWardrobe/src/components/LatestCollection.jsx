@@ -8,7 +8,7 @@ const LatestCollection = () => {
   // const [latestProduct,setLatestProduct] = useState([])
 
   // latest collections
-  const latestProduct = products.slice(0, 10);
+  const latestProduct = products.slice(0, 5);
 
   return (
     <div className="my-10">
