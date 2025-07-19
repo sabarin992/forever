@@ -3,7 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from decimal import Decimal
+from decimal import Decimal,ROUND_HALF_UP
 
 
 # Custom User
@@ -198,7 +198,9 @@ class CartItem(models.Model):
     product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='cart_items')
     quantity = models.PositiveIntegerField(default=1)
     size = models.CharField(max_length=10, blank=True,null=True, default="")
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    total_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    # total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -210,10 +212,24 @@ class CartItem(models.Model):
             print(f'cartitem quantity = {self.quantity}\nProduct_Variant_quantitys = {self.product_variant.stock_quantity}')
             raise ValidationError("Quantity exceeds available stock.")
         # Use the get_discounted_price() method to calculate the price
-        price_to_use = self.product_variant.final_price
-        # Calculate total amount
-        self.total_amount = price_to_use*self.quantity
+        # price_to_use = self.product_variant.final_price
+        # print(f'Price_to_use = {price_to_use}')
+        # # Calculate total amount
+        # self.total_amount = price_to_use*self.quantity
+
+        self.total_price = self.product_variant.price * self.quantity
+        self.total_discount = self.product_variant.final_price * self.quantity
+        
         super().save(*args, **kwargs)
+
+    def get_actual_price(self):
+        return self.product_variant.price
+    
+    def get_offer_amount(self):
+        price = Decimal(str(self.product_variant.price))
+        discount = Decimal(str(self.product_variant.product_discount))
+        offer_amount = (price * discount / Decimal('100')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        return offer_amount
 
 
     def get_variant_image(self):
