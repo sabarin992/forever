@@ -36,6 +36,20 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 import logging
 from django.db.models.functions import Lower
+from django.utils import timezone
+from django.db.models import Sum, Count, F
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
+from datetime import timedelta, datetime
+import pandas as pd
+import io
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+
+
+
 
 
 # Basic configuration
@@ -46,8 +60,6 @@ logging.basicConfig(
 
 # redis server setup
 r = redis.StrictRedis(host="localhost", port=6379, db=0, decode_responses=True)
-
-#==================================================================================================================
 
 # For convert Querydict to dictionary for add product 
 def querydict_to_dict(querydict):
@@ -79,10 +91,7 @@ def querydict_to_dict(querydict):
 
     return data
 
-# ===============================================================================================================
 
-# for paginate the given queryset
-# ================================
 
 def paginate_queryset(queryset,size,request):
         paginator = PageNumberPagination()
@@ -104,11 +113,9 @@ def paginate_queryset(queryset,size,request):
             'paginator': paginator
         }
 
-# ===============================================================================================================
 
 
-# for get product data
-# =====================
+
 
 def get_product_data(request,is_more_products,products=None,product=None):
     if is_more_products:
@@ -149,8 +156,7 @@ def get_product_data(request,is_more_products,products=None,product=None):
             "images":[request.build_absolute_uri(image.image.url) for image in product.product.product_image.filter(product=product.product, variant=product)]
         }
 
-# ===============================================================================================================
-# for get users data
+
 def get_users_data(request,users=None):
     return [
         {
@@ -164,9 +170,8 @@ def get_users_data(request,users=None):
         for user in users
     ]
 
-# ===============================================================================================================
 
-# for save image from url
+
 def save_image_from_url(image_url):
     try:
         response = req.get(image_url)
@@ -177,7 +182,6 @@ def save_image_from_url(image_url):
         pass
     return None
 
-# ===============================================================================================================
 # fn for generate order number
 
 from datetime import datetime
@@ -187,7 +191,6 @@ def generate_order_number(order_id):
     return f"ORD{today}-{str(order_id).zfill(6)}"
 
 
-# ===============================================================================================================
 
 
 # index view
@@ -380,7 +383,6 @@ def add_product(request):
     return Response({'message': 'Product Added Successfully'}, status=status.HTTP_201_CREATED)
 
     
-# ===============================================================================================================
 
 # for edit product
 @api_view(['PUT','GET'])
@@ -464,14 +466,12 @@ def edit_product(request,id):
 
     return Response({'message': 'Product updated successfully'}, status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
 
-# otp configuration
-# ==================
 
 
-# Function to generate a 6-digit OTP
+
+
 def generate_otp():
     return str(random.randint(100000, 999999))
 
@@ -570,7 +570,6 @@ def verify_otp(request):
         return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
     
 
-# ===============================================================================================================
 
 
 # To get all products where the product is active and not deleted,
@@ -602,7 +601,6 @@ def get_products(request):
     return Response(product_data,status=status.HTTP_200_OK)
    
 
-# ===============================================================================================================
 
 # To get all products for admin
 @api_view(['GET'])
@@ -635,7 +633,6 @@ def get_all_products(request):
 
 
 
-# ===============================================================================================================
 
 # for list or unlist product
 @api_view(['PUT'])
@@ -647,7 +644,6 @@ def list_unlist_product(request,id):
     product.save()
     return Response({'message': 'Product status updated successfully','isListed':product.is_active}, status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -702,10 +698,8 @@ def filter_product(request):
     return Response(response.data, status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
 
-# product details view
-# ====================
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -714,7 +708,6 @@ def product_details(request,id):
     product_data = product_data = get_product_data(request,is_more_products=False,product=product)
     return Response(product_data,status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -732,7 +725,6 @@ def related_products(request,id):
     
 
 
-# ===============================================================================================================
 # for get all users
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -747,7 +739,6 @@ def get_all_users(request):
     response.data['total_pages'] = data['total_pages']
     return Response(response.data,status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 # for block and unblock user
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -759,7 +750,6 @@ def block_unblock_user(request,id):
     users_data = get_users_data(request,users=users)
     return Response(users_data,status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 # for edit user
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -772,9 +762,7 @@ def edit_user(request,id):
     user.save()
     return Response('User Edited Successfull')
 
-# ===============================================================================================================
 
-# for get all categories
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_categories(request):
@@ -799,8 +787,7 @@ def get_all_categories(request):
     response.data['total_pages'] = data['total_pages']
     return Response(response.data,status=status.HTTP_200_OK)
 
-# ===============================================================================================================
-# for get all listed categories
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_listed_categories(request):
@@ -810,9 +797,8 @@ def get_all_listed_categories(request):
     return Response(response,status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
 
-# for list/unlist category
+
 @api_view(['PUT'])
 @permission_classes([AllowAny])
 def list_unlist_category(request, id):
@@ -821,15 +807,13 @@ def list_unlist_category(request, id):
     category.save()
     return Response({'message': 'Category status updated successfully','isListed':category.is_active}, status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
-# Edit category
+
 @api_view(['PUT'])
 @permission_classes([AllowAny])
 def edit_category(request, id):
     category = Category.objects.get(pk=id)
     name = request.data["name"]
-    # print(category.name.lower(),name.lower())
     if category.name.lower() == name.lower():
         print('Same')
         pass
@@ -841,9 +825,8 @@ def edit_category(request, id):
     category.save()
     return Response('Category Edited Successfull',status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
-# for add category
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def add_category(request):
@@ -853,9 +836,7 @@ def add_category(request):
     category = Category.objects.create(name = request.data["name"],description = request.data["description"])
     return Response('Category Added Successfully',status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
-# user profile
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_profile(request):
@@ -877,9 +858,7 @@ def user_profile(request):
     }
     return Response(user_data,status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
-# Edit user profile
 @api_view(['PUT','GET'])
 @permission_classes([IsAuthenticated])
 def edit_user_profile(request):
@@ -903,9 +882,6 @@ def edit_user_profile(request):
         return Response('User Edited Successfull',status=status.HTTP_200_OK)
     
 
-# ===============================================================================================================
-
-# for manage user password
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def reset_password(request):
@@ -918,9 +894,7 @@ def reset_password(request):
     user.save()
     return Response('Password Changed Successfull',status=status.HTTP_200_OK)
 
-# ===============================================================================================================
 
-# for get all addresses
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_addresses(request):
@@ -958,9 +932,6 @@ def get_all_addresses(request):
         return Response({'error':"The current user hasn't no addresses"},status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
-
-# for add address
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_address(request):
@@ -987,9 +958,6 @@ def add_address(request):
     return Response('Address Added Successfull',status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
-
-# for edit address
 @api_view(['PUT','GET'])
 @permission_classes([IsAuthenticated])
 def edit_address(request,id):
@@ -1019,9 +987,6 @@ def edit_address(request,id):
         return Response(address_data,status=status.HTTP_200_OK)
     
 
-# ===============================================================================================================
-
-# for delete address
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_address(request,id):
@@ -1029,55 +994,6 @@ def delete_address(request,id):
     address.delete()
     return Response('Address Deleted Successfull',status=status.HTTP_200_OK)
 
-# ===============================================================================================================
-
-# for add to cart
-# =================
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def add_to_cart(request):
-#     user = CustomUser.objects.get(pk = request.user.id)
-#     product_variant = ProductVariant.objects.get(pk = request.data["product_variant"])
-
-#     if product_variant.stock_quantity<=0:
-#         return Response('The product out of stock.',status=status.HTTP_400_BAD_REQUEST)
-
-    
-#     # Check if the product_variant exists in the wishlist and remove
-#     exists_in_wishlist = Wishlist.objects.filter(user=request.user, product_variant=product_variant).exists()
-#     if exists_in_wishlist:
-#         Wishlist.objects.filter(user=request.user, product_variant=product_variant).delete()
-
-#     size = request.data["size"]
-#     quantity = request.data["quantity"]
-#     # cart item
-#     cart_item = CartItem.objects.filter(user=request.user, product_variant=product_variant,size=size).first()
-#     exists_in_cart = CartItem.objects.filter(user=request.user, product_variant=product_variant,size=size).exists()
-#     if exists_in_cart:
-#         logging.info('add to cart')
-#         try:
-#             cart_item.quantity += 1
-#             cart_item.save()
-
-#             return Response('Increment the product by 1',status=status.HTTP_200_OK)
-#         except ValidationError:
-#             return Response('Maximum 5 items allowed per product variant.',status=status.HTTP_400_BAD_REQUEST)
-#     else:
-#         logging.info('add to cart')
-    
-#         CartItem.objects.create(
-#         user=user,
-#         product_variant=product_variant,
-#         size=size,
-#         quantity = quantity
-#         )
-#         return Response('Product Added to Cart',status=status.HTTP_200_OK)
-
-
-# from django.core.exceptions import ValidationError
-# from rest_framework.response import Response
-# from rest_framework import status
-# import logging
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -1087,18 +1003,8 @@ def add_to_cart(request):
 
     if product_variant.stock_quantity <= 0:
         return Response('The product is out of stock.', status=status.HTTP_400_BAD_REQUEST)
-
-    
-
     size = request.data["size"]
-    # print(request.data)
-    # if request.data["quantity"]:
-    #     print(request.data["quantity"])
-    #     quantity = int(request.data["quantity"])
-
     cart_item = CartItem.objects.filter(user=request.user, product_variant=product_variant, size=size).first()
-    print(f'Product Variant Stock Quantity = {product_variant.stock_quantity}')
-
     if cart_item:
         try:
             cart_item.quantity += 1
@@ -1125,7 +1031,7 @@ def add_to_cart(request):
     
 
 
-# ================================================================================================================
+
 
 # for get all cart data
 @api_view(['GET'])
@@ -1169,21 +1075,12 @@ def update_cart(request,id):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ================================================================================================================
-
-# for delete cart item
-
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def remove_cartitem(request,id):
     cart_item = CartItem.objects.get(pk=id)
     cart_item.delete()
     return HttpResponse(f'Remove Cart item successfully')
-
-# ================================================================================================================
-
-# for place order
-# ===============
 
 
 @api_view(['POST'])
@@ -1320,94 +1217,7 @@ def update_order_payment(request):
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def place_order(request):
-#     user = CustomUser.objects.get(pk=request.user.id)
-#     address_id = request.data.get("address_id")
-#     cart_items = CartItem.objects.filter(user=user)
-#     payment_method = request.data.get('payment_method')
-#     payment_status = request.data.get('payment_status')
-#     coupon_code = request.data.get('couponCode')
-#     wallet = Wallet.objects.get(user = user)
-    
-#     # return HttpResponse('success')
-    
 
-#     # user coupon usage
-#     if coupon_code:
-#         try:
-#             coupon = Coupon.objects.get(code=coupon_code)
-#             usage, created = CouponUsage.objects.get_or_create(user=user, coupon=coupon)
-#             if usage.used:
-#                 return Response({"error": "You have already applied this coupon."}, status=400)
-
-#             usage.used = True
-#             usage.save()
-
-#         except Coupon.DoesNotExist:
-#             return Response({"error": "Invalid coupon code."}, status=404)
-
-#     if not cart_items.exists():
-#         return Response({'error': 'No items in the cart'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     if not address_id:
-#         return Response({'error': 'Address is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     try:
-#         address = Address.objects.get(pk=address_id, user=user)
-#     except Address.DoesNotExist:
-#         return Response({'error': 'Invalid address'}, status=status.HTTP_400_BAD_REQUEST)
-
-#     # order can't place if order amount > 1000 in case of COD
-#     if payment_method == "COD":
-#         if request.data['total'] > 1000:
-#             return Response({'error':'Order above Rs 1000 should not be allowed for COD'},status=status.HTTP_400_BAD_REQUEST)
-    
-#     # Create order
-#     order = Order.objects.create(user=user, shipping_address=address,total=request.data['total'])
-#     order_number = generate_order_number(order.id)
-#     order.order_no = order_number
-#     order.payment = payment_method if payment_method else 'COD'
-#     if payment_method == 'RAZORPAY':
-#         order.razorpay_payment_status = payment_status
-#         order.status = payment_status
-#     else:
-#         order.status = payment_status
-#         if payment_method == "WALLET":
-#             wallet.debit(order.total,f'Order payment for {order.order_no}')
-            
-#     order.save()
-
-#     # Add items to the order
-#     for cart_item in cart_items:
-#         OrderItem.objects.create(
-#             order=order,
-#             product_variant=cart_item.product_variant,
-#             quantity=cart_item.quantity,
-#             total_amount=cart_item.total_amount
-#         )
-
-    
-#     # Decrement the stock quantity of each product variant
-#     for cart_item in cart_items:
-#         product_variant = cart_item.product_variant
-#         if product_variant.stock_quantity < cart_item.quantity:
-#             return Response({'error': f'Insufficient stock for {product_variant.product.name}'}, status=status.HTTP_400_BAD_REQUEST)
-#         product_variant.stock_quantity -= cart_item.quantity
-#         product_variant.save()
-
-#     # Clear the cart  
-#     cart_items.delete()
-
-
-    
-
-
-#     return Response({'message': 'Order placed successfully', 'order_id': order.id}, status=status.HTTP_201_CREATED)
-
-
-# for get all orders
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_orders(request):
@@ -1449,9 +1259,6 @@ def get_all_orders(request):
     return Response(response.data, status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
-
-# for specific order details
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def order_details(request, id):
@@ -1515,9 +1322,6 @@ def order_details(request, id):
     return Response(order_data, status=status.HTTP_200_OK)
 
 
-# ==============================================================================================================
-
-# for cancel the order
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def cancel_order(request,id):
@@ -1529,9 +1333,6 @@ def cancel_order(request,id):
 
         order.status = 'CANCELED'
         order.save()
-
-        # cancel all order items
-        # ======================
         for order_item in order.order_items.all():
             order_item.status = 'CANCELED'
             order_item.save()
@@ -1545,10 +1346,6 @@ def cancel_order(request,id):
         return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-
-# ================================================================================================================
-
-# for cancel the order item
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def cancel_order_item(request, id):
@@ -1566,10 +1363,6 @@ def cancel_order_item(request, id):
                     amount=Decimal(str(item.total_amount)),
                     description=f"Refund for cancelled order item - {item.product_variant}"
                 )
-        # wallet.balance += Decimal(str(item.total_amount))
-        # wallet.save()
-
-        # Optional: If all items canceled, update order status too
         order = item.order
         if all(i.status == 'CANCELED' for i in order.order_items.all()):
             order.status = 'CANCELED'
@@ -1585,10 +1378,6 @@ def cancel_order_item(request, id):
     except OrderItem.DoesNotExist:
         return Response({'error': 'Order item not found.'}, status=status.HTTP_404_NOT_FOUND)
     
-
-# ================================================================================================================
-
-# for update the order status
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -1622,7 +1411,7 @@ def update_order_status(request, id):
         return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
     
 
-# ================================================================================================================
+
 
 # api for create order using razor pay
 
@@ -1645,7 +1434,7 @@ def create_order(request):
     })
 
 
-# ================================================================================================================
+
 
 # api for verify payment using razor pay
 
@@ -1757,7 +1546,9 @@ def verify_retry_payment(request):
 #     return Response({"status": False, "message": f"Error: {str(e)} at line {line_no}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# for return an order item
+
+
+
 @api_view(['POST'])
 def return_order_item(request, order_item_id):
     try:
@@ -1796,9 +1587,6 @@ def return_order_item(request, order_item_id):
     except OrderItem.DoesNotExist:
         return Response({"error": "Order item not found"}, status=status.HTTP_404_NOT_FOUND)
     
-# ==============================================================================================================
-
-# api for return the reason of order item
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1869,11 +1657,6 @@ def handle_return_approval(request, order_item_id):
         return Response({"error": "Order item not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
-# ===============================================================================================================
-
-
-# api for apply coupon
-# ====================
 
 from .models import Coupon, CouponUsage
 
@@ -1910,7 +1693,6 @@ def apply_coupon(request):
     except Coupon.DoesNotExist:
         return Response({"error": "Invalid coupon code."}, status=404)
 
-# ===============================================================================================================
 
 @api_view(['POST'])
 def remove_coupon(request):
@@ -1929,10 +1711,7 @@ def remove_coupon(request):
         return Response({"error": "Invalid coupon code."}, status=404)
 
 
-    
-# ===============================================================================================================
 
-# for get all vaild coupons
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_valid_coupons(request):
@@ -1951,9 +1730,6 @@ def get_all_valid_coupons(request):
     return Response(coupons_data, status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
-
-# for add to wishlist
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_to_wishlist(request):
@@ -1966,15 +1742,6 @@ def add_to_wishlist(request):
     except ProductVariant.DoesNotExist:
         return Response({"error": "Product variant not found"}, status=status.HTTP_404_NOT_FOUND)
 
-
-    # Check if the product is already in the cart
-    # ===========================================
-
-    # cart_item_exists = CartItem.objects.filter(user=user, product_variant=product_variant).exists()
-    # if cart_item_exists:
-    #     return Response({"error": "Product is already in the cart"}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Check if the product is already in the wishlist
     wish_list_exists = Wishlist.objects.filter(user=user, product_variant=product_variant).exists()
     if wish_list_exists:
         return Response({"error": "Product is already in the wishlist"}, status=status.HTTP_400_BAD_REQUEST)
@@ -1983,10 +1750,6 @@ def add_to_wishlist(request):
     Wishlist.objects.create(user=user, product_variant=product_variant)
     return Response({"message": "Product added to wishlist successfully"}, status=status.HTTP_201_CREATED)
 
-
-# ===============================================================================================================
-
-# for remove from wishlist
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def remove_from_wishlist(request, product_variant_id):
@@ -2002,7 +1765,6 @@ def remove_from_wishlist(request, product_variant_id):
     return Response({"message": "Product removed from wishlist successfully"}, status=status.HTTP_200_OK)
 
     
-# ===============================================================================================================
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -2015,7 +1777,6 @@ def is_product_in_wishlist(request, product_variant_id):
     return Response({"in_wishlist": exists}, status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
 
 
 @api_view(['GET'])
@@ -2044,10 +1805,6 @@ def get_all_wishlist_products(request):
     response = {'wishlist_data':wishlist_data,'wishlist_count':wishlist_items.count()}
     return Response(response, status=status.HTTP_200_OK)
 
-
-# ===============================================================================================================
-
-# for update profile picture
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_profile_picture(request):
@@ -2062,11 +1819,6 @@ def update_profile_picture(request):
 
     return Response({"message": "Profile picture updated successfully"}, status=status.HTTP_200_OK)
 
-
-# ===============================================================================================================
-
-
-# API to get wallet data
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_wallet_data(request):
@@ -2091,7 +1843,6 @@ def get_wallet_data(request):
     return Response(wallet_data, status=status.HTTP_200_OK)
 
 
-# ===============================================================================================================
 
 
 @api_view(['POST','GET'])
@@ -2113,31 +1864,6 @@ def add_money_to_wallet(request):
 
 
 
-# ===============================================================================================================
-
-# Sales reports
-# =============
-
-
-from django.utils import timezone
-from django.db.models import Sum, Count, F
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
-from rest_framework.response import Response
-from rest_framework import status
-from datetime import timedelta, datetime
-import pandas as pd
-import io
-from django.http import HttpResponse
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
-from reportlab.lib.styles import getSampleStyleSheet
-
-from .models import Order, OrderItem, Coupon, CouponUsage
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def generate_sales_report(request):
@@ -2149,38 +1875,6 @@ def generate_sales_report(request):
     - end_date: YYYY-MM-DD (required if date_range is custom)
     - download_format: 'pdf', 'excel', null (default: null - returns JSON)
     """
-    # date_range = request.query_params.get('date_range', 'daily')
-    # download_format = request.query_params.get('download_format', None)
-    # print(date_range)
-    # # Calculate date range based on the filter
-    # today = timezone.now().date()
-    
-    # if date_range == 'daily':
-    #     start_date = today
-    #     end_date = today
-    # elif date_range == 'weekly':
-    #     start_date = today - timedelta(days=today.weekday())
-    #     end_date = today
-    # elif date_range == 'monthly':
-    #     start_date = today.replace(day=1)
-    #     end_date = today
-    # elif date_range == 'yearly':
-    #     start_date = today.replace(month=1, day=1)
-    #     end_date = today
-    # elif date_range == 'custom':
-    #     try:
-    #         start_date = datetime.strptime(request.query_params.get('start_date'), '%Y-%m-%d').date()
-    #         end_date = datetime.strptime(request.query_params.get('end_date'), '%Y-%m-%d').date()
-    #     except (ValueError, TypeError):
-    #         return Response(
-    #             {"error": "Invalid date format. Use YYYY-MM-DD for start_date and end_date"},
-    #             status=status.HTTP_400_BAD_REQUEST
-    #         )
-    # else:
-    #     return Response(
-    #         {"error": "Invalid date_range. Choose from 'daily', 'weekly', 'monthly', 'yearly', 'custom'"},
-    #         status=status.HTTP_400_BAD_REQUEST
-    #     )
 
 
     date_range = request.query_params.get('date_range', 'daily')
@@ -2192,21 +1886,15 @@ def generate_sales_report(request):
     if date_range == 'daily':
         start_date = today
         end_date = today
-        print(start_date)
-        print(end_date)
     elif date_range == 'weekly':
         start_date = today - timedelta(days=today.weekday())
         end_date = today
-        print(start_date)
-        print(end_date)
     elif date_range == 'monthly':
         start_date = today.replace(day=1)
         end_date = today
     elif date_range == 'yearly':
         start_date = today.replace(month=1, day=1)
         end_date = today
-        print(start_date)
-        print(end_date)
     elif date_range == 'custom':
         try:
             start_date = datetime.strptime(request.query_params.get('start_date'), '%Y-%m-%d').date()
@@ -2498,7 +2186,6 @@ def generate_pdf_report(report_data):
     return response
 
 
-# ===============================================================================================================
 
 @api_view(['GET', 'POST'])
 def coupon_list(request):
@@ -2518,7 +2205,6 @@ def coupon_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# ===============================================================================================================
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
@@ -2547,7 +2233,6 @@ def coupon_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# ===============================================================================================================
 
 @api_view(['GET'])
 def best_selling_products(request):
@@ -2591,8 +2276,7 @@ def best_selling_categories(request):
     ]
     return Response(data,status=status.HTTP_200_OK)
 
-# forgot password
-# ================
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -2664,96 +2348,11 @@ def reset_forgot_password(request):
     return Response({"message": "Password has been reset successfully"}, status=status.HTTP_200_OK)
 
 
-# # offers
-
-# # product offers
-# # ==============
-
-
-# # get product offers
-# # ===================
-# @api_view(['GET'])
-# @permission_classes([AllowAny])
-# def get_product_offers(request):
-#     product_offers = ProductOffer.objects.all()
-#     products = Product.objects.all()
-#     product_data = [
-#             {
-#                 "product_id":product.id,
-#                 "product_name":product.name
-#             } 
-#             for product in products
-#             ]
-    
-#     offer_data = [
-#         {
-#             "id":offer.id,
-#             "product_name":offer.product.name,
-#             "discount_percentage":offer.discount_percentage
-#             }
-#         for offer in product_offers
-#     ]
-    
-#     return Response({'offer_data':offer_data,'product_data':product_data},status=status.HTTP_200_OK)
-
-
-# # add product offers
-# # ===================
-
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-
-# def add_product_offer(request):
-#     data = request.data
-#     serializer = ProductOfferSerializer(data = data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-# # category offers
-# # ===============
-
-# # get product offers
-# # ===================
-# @api_view(['GET'])
-# @permission_classes([AllowAny])
-# def get_category_offers(request):
-#     category_offers = CategoryOffer.objects.all()
-#     categories = Category.objects.all()
-#     category_data = [
-#             {
-#                 "category_id":category.id,
-#                 "category_name":category.name
-#             } 
-#             for category in categories
-#             ]
-    
-#     offer_data = [
-#         {
-#             "id":offer.id,
-#             "category_name":offer.category.name,
-#             "discount_percentage":offer.discount_percentage
-#             }
-#         for offer in category_offers
-#     ]
-    
-#     return Response({'offer_data':offer_data,'category_data':category_data},status=status.HTTP_200_OK)
-
-
-# product offer viewset
-# =====================
 
 class ProductOfferViewSet(viewsets.ModelViewSet):
     queryset = ProductOffer.objects.all()
     serializer_class = ProductOfferSerializer
 
-
-# category offer viewset
-# ======================
 
 class CategoryOfferViewSet(viewsets.ModelViewSet):
     queryset = CategoryOffer.objects.all()
