@@ -13,11 +13,10 @@ const ManageAddress = () => {
         const getAddresses = async () => {
             try {
                 const res = await api.get("/get_all_addresses/");
-                
                 setAddresses(res.data.addresses_data)
-                console.log(res.data)
             } catch (error) {
-                console.log(error.message)
+               
+                
             }
         }
         
@@ -52,7 +51,7 @@ const ManageAddress = () => {
 
     {/* Address List */}
     <div className="flex flex-col gap-4">
-      {addresses.map((address) => (
+      {addresses?.map((address) => (
         <div
           key={address.id}
           className="flex justify-between items-center border p-4 rounded-md"

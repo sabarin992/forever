@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
-export const API_BASE_URL = "https://forever.sabarinathem.xyz/api";
-// export const API_BASE_URL = "http://127.0.0.1:8000/api";
+// export const API_BASE_URL = "https://forever.sabarinathem.xyz/api";
+export const API_BASE_URL = "http://127.0.0.1:8000/api";
 
 // Create Axios instance
 const api = axios.create({
