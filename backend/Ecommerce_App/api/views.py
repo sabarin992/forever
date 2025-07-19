@@ -925,34 +925,38 @@ def reset_password(request):
 @permission_classes([IsAuthenticated])
 def get_all_addresses(request):
     user = CustomUser.objects.get(pk = request.user.id)
-    addresses = user.addresses.all()
-    primary_address = user.addresses.filter(is_primary=True).first()
-    addresses_data = [
-        {
-            "id": address.id,
-            "name": address.name,
-            "phone_no": address.phone_no,
-            "street_address": address.street_address,
-            "city": address.city,
-            "state": address.state,
-            "pin_code": address.pin_code,
-            "country": address.country,
-           
+    try:
+        addresses = user.addresses.all()
+        primary_address = user.addresses.filter(is_primary=True).first()
+        addresses_data = [
+            {
+                "id": address.id,
+                "name": address.name,
+                "phone_no": address.phone_no,
+                "street_address": address.street_address,
+                "city": address.city,
+                "state": address.state,
+                "pin_code": address.pin_code,
+                "country": address.country,
             
-        }
-        for address in addresses
-    ]
-
-    customer = {
-                "id": request.user.id,
-                "first_name": request.user.first_name,
-                "last_name": request.user.last_name,
-                "email": request.user.email,
-                "phone_number": request.user.phone_number,
+                
             }
+            for address in addresses
+        ]
 
-    response = {'addresses_data':addresses_data,'primary_address_id':primary_address.id,'customer':customer}
-    return Response(response,status=status.HTTP_200_OK)
+        customer = {
+                    "id": request.user.id,
+                    "first_name": request.user.first_name,
+                    "last_name": request.user.last_name,
+                    "email": request.user.email,
+                    "phone_number": request.user.phone_number,
+                }
+
+        response = {'addresses_data':addresses_data,'primary_address_id':primary_address.id,'customer':customer}
+        return Response(response,status=status.HTTP_200_OK)
+    except:
+        return Response({'error':"The current user hasn't no addresses"},status=status.HTTP_200_OK)
+
 
 # ===============================================================================================================
 
@@ -1128,26 +1132,29 @@ def add_to_cart(request):
 @permission_classes([IsAuthenticated])
 def get_all_cart_products(request):
     carts = CartItem.objects.filter(user = request.user)
-    total_amount = carts.aggregate(Sum('total_amount'))
+    total_price = carts.aggregate(Sum('total_price'))
+    total_discount = carts.aggregate(Sum('total_discount'))
+
     data = paginate_queryset(carts,5,request)
     cart_data = [
         {"id":item.id,
         "image":request.build_absolute_uri(item.get_variant_image()),
          "name":item.product_variant.product.name,
-         "price":item.total_amount,
+         "actual_price":item.get_actual_price(),
+         "price":item.total_price,
          "size":item.size,
-         "quantity":item.quantity
+         "quantity":item.quantity,
+         "discount_offer" : item.get_offer_amount()
 
                   }
                  for item in data["products"]
                  ]
     
-    print(cart_data)
     response = data['paginator'].get_paginated_response(cart_data)
     response.data['has_next'] = bool(data['paginator'].get_next_link())
     response.data['has_previous'] = bool(data['paginator'].get_previous_link())
     response.data['total_pages'] = data['total_pages']
-    response = {'cart_data':response.data,'total_amount':total_amount['total_amount__sum'],'cart_count':carts.count()}
+    response = {'cart_data':response.data,'total_price':total_price['total_price__sum'],'total_discount':total_discount['total_discount__sum'],'cart_count':carts.count()}
     return Response(response,status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
@@ -1187,13 +1194,9 @@ def place_order(request):
     cart_items = CartItem.objects.filter(user=user)
     payment_method = request.data.get('payment_method')
     payment_status = request.data.get('payment_status')
-    coupon_code = request.data.get('couponCode')
-    wallet = Wallet.objects.get(user=user)
+    coupon_code = request.data.get('couponCode') 
     discounted_amount=request.data['discounted_amount']
 
-    print(f'discounted_amount = {discounted_amount}')
-    
-   
 
     if not cart_items.exists():
         return Response({'error': 'No items in the cart'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1242,6 +1245,7 @@ def place_order(request):
         else:
             order.status = 'PENDING'
     elif payment_method == "WALLET":
+        wallet = Wallet.objects.get(user=user)
         wallet.debit(order.total, f'Order payment for {order.order_no}')
         order.status = 'CONFIRMED'
     else:  # COD
