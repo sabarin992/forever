@@ -1,6 +1,21 @@
-"use client"
+"use client";
 
-const WishlistTable = ({ items, onRemove, onAddToCart,currency }) => {
+import api from "@/api";
+import ConfirmModal from "@/ConfirmModal";
+import { useState } from "react";
+import { toast } from "react-toastify";
+
+const WishlistTable = ({
+  items,
+  onRemove,
+  onAddToCart,
+  currency,
+  handleDeleteClick,
+  handleConfirmDelete,
+  handleCancel,
+  isModalOpen,
+}) => {
+
   return (
     <div className="w-full overflow-x-auto">
       {/* Header - Desktop */}
@@ -16,31 +31,39 @@ const WishlistTable = ({ items, onRemove, onAddToCart,currency }) => {
       {/* Items */}
       <div className="divide-y">
         {items.map((item) => (
-          <div key={item.id} className="grid grid-cols-2 md:grid-cols-6 py-4 items-center">
+          <div
+            key={item.id}
+            className="grid grid-cols-2 md:grid-cols-6 py-4 items-center"
+          >
             {/* Product Image and Name */}
-           
-              <div className="relative">
-               
-                <img
-                  src={item.image || "/placeholder.svg"}
-                  alt={item.name}
-                  className="w-20 h-24 object-cover bg-gray-100"
-                />
-              </div>
-              <div className="ml-2">
-                <h3 className="text-gray-700">{item.name}</h3>
-              </div>
-          
+
+            <div className="relative">
+              <img
+                src={item.image || "/placeholder.svg"}
+                alt={item.name}
+                className="w-20 h-24 object-cover bg-gray-100"
+              />
+            </div>
+            <div className="ml-2">
+              <h3 className="text-gray-700">{item.name}</h3>
+            </div>
 
             {/* Price */}
             <div className="text-right md:text-center px-4 md:px-0">
               {item.originalPrice && item.originalPrice > item.price ? (
                 <div>
-                  <span className="text-gray-400 line-through mr-2">€{item.originalPrice.toFixed(2)}</span>
-                  <span className="text-gray-700">€{item.price.toFixed(2)}</span>
+                  <span className="text-gray-400 line-through mr-2">
+                    €{item.originalPrice.toFixed(2)}
+                  </span>
+                  <span className="text-gray-700">
+                    €{item.price.toFixed(2)}
+                  </span>
                 </div>
               ) : (
-                <span className="text-gray-700">{currency}{item.price.toFixed(2)}</span>
+                <span className="text-gray-700">
+                  {currency}
+                  {item.price.toFixed(2)}
+                </span>
               )}
             </div>
 
@@ -49,10 +72,8 @@ const WishlistTable = ({ items, onRemove, onAddToCart,currency }) => {
               {item.inStock ? "In Stock" : "Out of Stock"}
             </div> */}
 
-
-
-             {/* size */}
-             <div className="text-right md:text-center px-4 md:px-0 text-gray-600 mt-2 md:mt-0">
+            {/* size */}
+            <div className="text-right md:text-center px-4 md:px-0 text-gray-600 mt-2 md:mt-0">
               {item.size}
             </div>
 
@@ -64,27 +85,34 @@ const WishlistTable = ({ items, onRemove, onAddToCart,currency }) => {
             {/* Actions */}
             <div className="flex gap-4">
               <button
-                onClick={() => {onAddToCart(item.id,item.size,item.color)// here we want to add quantity. (onAddToCart(item.id,item.size,item.color,item.quantity))
-                }
-                }
+                onClick={() => {
+                  onAddToCart(item.id, item.size, item.color); // here we want to add quantity. (onAddToCart(item.id,item.size,item.color,item.quantity))
+                }}
                 // disabled={!item.inStock}
                 className="w-full md:w-auto bg-black text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-gray-700"
               >
                 ADD TO CART
               </button>
               <button
-                onClick={() => onRemove(item.id)}
+                onClick={() => handleDeleteClick(item.id)}
                 // disabled={!item.inStock}
                 className="w-full md:w-auto bg-red-600 text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-red-800"
               >
-               x
+                x
               </button>
+
+              <ConfirmModal
+                isOpen={isModalOpen}
+                onClose={handleCancel}
+                onConfirm={handleConfirmDelete}
+                message="Are you sure you want to delete this user?"
+              />
             </div>
           </div>
         ))}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default WishlistTable
+export default WishlistTable;
