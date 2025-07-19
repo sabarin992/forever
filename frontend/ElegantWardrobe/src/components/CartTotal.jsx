@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 
-const CartTotal = ({totalAmount,discount}) => {
+const CartTotal = ({totalPrice,discount,totalDiscount}) => {
   const { currency, delivery_fee} = useContext(ShopContext);
 
   return (
@@ -12,10 +12,17 @@ const CartTotal = ({totalAmount,discount}) => {
       </div>
       <div className="flex flex-col gap-2 mt-2 text-sm">
         <div className="flex justify-between">
-          <p>Subtotal</p>
+          <p>Price</p>
           <p>
             {currency}
-            {totalAmount}
+            {totalPrice}
+          </p>
+        </div>
+        <div className="flex justify-between">
+          <p>Discount</p>
+          <p>
+            {currency}
+            {totalDiscount}
           </p>
         </div>
         <hr />
@@ -59,9 +66,7 @@ const CartTotal = ({totalAmount,discount}) => {
 
         <div className="flex justify-between">
             <b>Total</b>
-            <b>{currency} {!totalAmount? 0 
-            : discount?(totalAmount) - ((totalAmount)*(discount/100))
-            :totalAmount}.00</b>
+            <b>{currency} {totalPrice - totalDiscount}.00</b>
         </div>
 
 

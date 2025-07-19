@@ -20,7 +20,8 @@ const ShopContextProvider = (props) => {
   const [isRomoveCartItem, setIsRomoveCartItem] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [cartData, setCartData] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);
   const [cartId, setCartId] = useState(0);
   const [isChangeQuantity, setIsChangeQuantity] = useState(false);
   const [isAddToCart, setIsAddToCart] = useState(false);
@@ -93,10 +94,13 @@ const ShopContextProvider = (props) => {
         // console.log(res.data.cart_data);
 
         setCartData(res.data.cart_data.results);
+        console.log(res.data.cart_data);
+        
         setHasNext(res.data.cart_data.has_next);
         setHasPrevious(res.data.cart_data.has_previous);
         setTotalPages(res.data.cart_data.total_pages);
-        setTotalAmount(res.data.total_amount);
+        setTotalPrice(res.data.total_price);
+        setTotalDiscount(res.data.total_discount);
         setCartCount(res.data.cart_count);
       } catch (error) {
         console.log("error");
@@ -141,7 +145,8 @@ const ShopContextProvider = (props) => {
     showSearch,
     setShowSearch,
     cartData,
-    totalAmount,
+    totalPrice,
+    totalDiscount,
     quantity,
     setQuantity,
     setCartId,
