@@ -3,6 +3,7 @@ import { UploadCloud } from "lucide-react";
 import api from "@/api"; // Ensure your API endpoint handles image uploads
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
+import { assets } from "@/assets/assets";
 
 const EditProfilePicture = () => {
   const [preview, setPreview] = useState(null);
@@ -45,7 +46,8 @@ const EditProfilePicture = () => {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Edit Profile Picture</h3>
       <div className="flex flex-col items-center space-y-4">
         <img
-          src={preview?preview:user.profile_picture}
+          // src={preview?preview:user.profile_picture}
+          src={preview?preview:assets.dummy_image}
           alt="Preview"
           className="w-24 h-24 rounded-full object-cover border"
         />

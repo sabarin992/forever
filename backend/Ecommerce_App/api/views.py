@@ -47,6 +47,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
+from decouple import config
 
 
 
@@ -481,14 +482,29 @@ def send_otp_email(email, otp):
     # Use certifi's CA bundle for SSL context
     context = ssl.create_default_context(cafile=certifi.where())
 
+    host=config('EMAIL_HOST')
+    print(f'host = {host}')
+    port=config('EMAIL_PORT', cast=int)
+    username=config('EMAIL_HOST_USER')
+    password=config('EMAIL_HOST_PASSWORD')
+    use_tls=config('EMAIL_USE_TLS', cast=bool)
+    ssl_context=context
+
     # Create a custom EmailBackend with the SSL context
     connection = EmailBackend(
-        host='smtp.gmail.com',           # Replace with your SMTP host if different
-        port=587,                        # Common port for TLS
-        username='sabarin992@gmail.com', # Replace with your Gmail address
-        password='rfly esiy kxku yhon',    # Replace with your app-specific password
-        use_tls=True,                    # Enable TLS
-        ssl_context=context              # Use the certifi SSL context
+        # host='smtp.gmail.com',           # Replace with your SMTP host if different
+        # port=587,                        # Common port for TLS
+        # username='sabarin992@gmail.com', # Replace with your Gmail address
+        # password='rfly esiy kxku yhon',    # Replace with your app-specific password
+        # use_tls=True,                    # Enable TLS
+        # ssl_context=context              # Use the certifi SSL context
+
+        host=config('EMAIL_HOST'),
+        port=config('EMAIL_PORT', cast=int),
+        username=config('EMAIL_HOST_USER'),
+        password=config('EMAIL_HOST_PASSWORD'),
+        use_tls=config('EMAIL_USE_TLS', cast=bool),
+        ssl_context=context
     )
 
     try:

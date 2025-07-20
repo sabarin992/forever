@@ -13,16 +13,15 @@ const AccountOverview = () => {
         const res = await api.get("/user_profile/");
         setUserData(res.data);
         console.log(res.data);
-        
       } catch (error) {
         console.log(error.message);
       }
     };
     getUserData();
   }, []);
-  const showData = ()=>{
-    console.log(userData)
-  }
+  const showData = () => {
+    console.log(userData);
+  };
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -46,8 +45,12 @@ const AccountOverview = () => {
           <div className="flex flex-col md:flex-row md:items-center">
             <div className="flex items-center mb-4 md:mb-0">
               <img
-              // profile picture
-                src={userData.profile_picture? userData.profile_picture : assets.p_img45}
+                // profile picture
+                src={
+                  userData.profile_picture
+                    ? userData.profile_picture
+                    : assets.dummy_image
+                }
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover"
               />
@@ -58,7 +61,13 @@ const AccountOverview = () => {
                 <div className="flex flex-col md:flex-row md:items-center text-gray-600 mt-1">
                   {/* <span>Team Manager</span>
                   <span className="hidden md:inline mx-2">|</span> */}
-                  <span>{userData?.address?.city},{userData?.address?.state},{userData?.address?.country}</span>
+
+                  {userData.address ? (
+                    <span>
+                      {userData?.address?.city},{userData?.address?.state},
+                      {userData?.address?.country}
+                    </span>
+                  ) : null}
                 </div>
               </div>
             </div>
@@ -75,14 +84,16 @@ const AccountOverview = () => {
               <button className="w-10 h-10 flex items-center justify-center rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50">
                 <Instagram className="w-5 h-5" />
               </button> */}
-            
-                <Link to='/profile/edit-profile-picture' state={{ user: userData }}>
+
+              <Link
+                to="/profile/edit-profile-picture"
+                state={{ user: userData }}
+              >
                 <button className="ml-2 flex items-center justify-center px-4 py-2 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50">
                   <Edit className="w-4 h-4 mr-2" />
                   Update Profile Picture
                 </button>
-                </Link>
-          
+              </Link>
             </div>
           </div>
         </div>
@@ -93,11 +104,11 @@ const AccountOverview = () => {
             <h3 className="text-lg font-semibold text-gray-900">
               Personal Information
             </h3>
-            <Link to='/profile/edit-profile'>
-            <button className="flex items-center justify-center px-4 py-2 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50">
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </button>
+            <Link to="/profile/edit-profile">
+              <button className="flex items-center justify-center px-4 py-2 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50">
+                <Edit className="w-4 h-4 mr-2" />
+                Edit
+              </button>
             </Link>
           </div>
 
