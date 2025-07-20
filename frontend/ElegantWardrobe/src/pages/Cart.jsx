@@ -37,7 +37,7 @@ const Cart = () => {
 
   //     }
   // }
-  console.log(quantity);
+ 
 
   return (
     <div className="border-t pt-14">
@@ -114,21 +114,18 @@ const Cart = () => {
                   </label>
                   <div className="flex items-center">
                     <input
-                      onChange={(e) => {
-                        setCartId(productData.id);
-                        setQuantity(e.target.value);
-                      }}
-                      className="w-16 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center"
-                      type="number"
-                      min={1}
-                      max={5}
-                      defaultValue={productData.quantity}
-                      value={
-                        !cartError
-                          ? productData.quantity
-                          : productData.quantity - 1 + 1
-                      }
-                    />
+                    onChange={(e) => {
+                      setCartId(productData.id);
+                      setQuantity(e.target.value);
+                    }}
+                    className="w-20 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center"
+                    type="number"
+                    min={1}
+                    max={5}
+                    value={
+                      !cartError ? productData.quantity : productData.quantity
+                    }
+                  />
                   </div>
                 </div>
 
@@ -200,6 +197,8 @@ const Cart = () => {
                   Quantity
                 </label>
                 <div className="flex justify-center">
+
+
                   <input
                     onChange={(e) => {
                       setCartId(productData.id);
@@ -209,11 +208,8 @@ const Cart = () => {
                     type="number"
                     min={1}
                     max={5}
-                    defaultValue={productData.quantity}
                     value={
-                      !cartError
-                        ? productData.quantity
-                        : productData.quantity - 1 + 1
+                      !cartError ? productData.quantity : productData.quantity
                     }
                   />
                 </div>
