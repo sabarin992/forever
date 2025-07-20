@@ -1093,13 +1093,18 @@ def remove_cartitem(request,id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def place_order(request):
+    print(request.data)
     user = CustomUser.objects.get(pk=request.user.id)
     address_id = request.data.get("address_id")
     cart_items = CartItem.objects.filter(user=user)
     payment_method = request.data.get('payment_method')
     payment_status = request.data.get('payment_status')
     coupon_code = request.data.get('couponCode') 
-    discounted_amount=request.data['discounted_amount']
+    # discounted_amount=request.data['discounted_amount']
+    total_price = request.data.get("total_price")
+    total_discount = request.data.get("total_discount")
+    coupon_discount = request.data.get("coupon_discount")
+    final_amount = request.data.get("final_amount")
 
 
     if not cart_items.exists():
@@ -1115,7 +1120,7 @@ def place_order(request):
 
     # Order can't place if order amount > 1000 in case of COD
     if payment_method == "COD":
-        if request.data['total'] > 1000:
+        if request.data['final_amount'] > 1000:
             return Response({'error':'Order above Rs 1000 should not be allowed for COD'},status=status.HTTP_400_BAD_REQUEST)
     
      # User coupon usage
@@ -1133,11 +1138,10 @@ def place_order(request):
             return Response({"error": "Invalid coupon code."}, status=404)
     
     # Create order
-    order = Order.objects.create(user=user, shipping_address=address, total=request.data['total'])
+    order = Order.objects.create(user=user, shipping_address=address,total_price=total_price,total_discount=total_discount,coupon_discount=coupon_discount,final_amount=final_amount)
     order_number = generate_order_number(order.id)
     order.order_no = order_number
     order.payment = payment_method if payment_method else 'COD'
-    order.discounted_amount = discounted_amount if discounted_amount else 0
     
     # Handle different payment methods and statuses
     if payment_method == 'RAZORPAY':
@@ -1163,7 +1167,7 @@ def place_order(request):
             order=order,
             product_variant=cart_item.product_variant,
             quantity=cart_item.quantity,
-            total_amount=cart_item.total_amount
+            total_amount=cart_item.total_price
         )
 
     # Decrement the stock quantity of each product variant
@@ -1248,7 +1252,10 @@ def get_all_orders(request):
             "order_no": order.order_no,
             "status": order.status,
             "order_date": order.order_date.strftime('%d-%m-%Y'),
-            "total_amount":order.total,
+            "total_price": order.total_price,
+            "total_discount":order.total_discount,
+            "coupon_discount" : order.coupon_discount,
+            "final_amount" : order.final_amount,
             "payment_status": order.razorpay_payment_status,
         }
         for order in data["products"]
@@ -1313,8 +1320,10 @@ def order_details(request, id):
         "status": order.status,
         "order_date": order.order_date.strftime('%d-%m-%Y'),
         "payment_method":order.payment,
-        "total": order.total,
-        "discounted_amount":order.discounted_amount,
+        "total_price": order.total_price,
+        "total_discount":order.total_discount,
+        "coupon_discount" : order.coupon_discount,
+        "final_amount" : order.final_amount,
         "payment_status": order.status,
         "address": address,
         "items": order_items,

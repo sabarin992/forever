@@ -38,6 +38,21 @@ const PlaceOrder = () => {
   });
   const [addressErrors, setAddressErrors] = useState({});
 
+  // get total price 
+
+  const getTotalPrice = ()=>{
+    const total_price =
+    totalDiscount && discount
+      ? totalPrice - (totalDiscount + (((totalPrice-totalDiscount)*discount)/100))
+      : totalDiscount
+      ? totalPrice - totalDiscount
+      : discount
+      ? totalPrice - discount
+      : totalPrice;
+      return total_price
+      
+    }
+
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setAddressData({ ...addressData, [name]: value });
@@ -157,9 +172,15 @@ const PlaceOrder = () => {
     console.log(method);
     try {
       const res = await api.post(`/place_order/`, {
+        // address_id: shipAddress,
+        // total:totalAmount,
+        // discounted_amount: totalAmount * (discount / 100),
         address_id: shipAddress,
-        total:totalAmount,
-        discounted_amount: totalAmount * (discount / 100),
+        total_price:totalPrice,
+        total_discount:totalDiscount,
+        coupon_discount:discount,
+        final_amount:getTotalPrice(),
+   
 
 
         // totalAmount - (Discounted amount)
@@ -180,7 +201,8 @@ const PlaceOrder = () => {
       );
       navigate("/order-success", { state: { orderId: res.data.order_id,discount:discount } });
     } catch (error) {
-      console.log(error.response.data);
+      // console.log(error)
+      // console.log(error?.response?.data);
       toast.error(error?.response?.data?.error)
     }
   };
@@ -213,9 +235,7 @@ const PlaceOrder = () => {
         // totalAmount - (Discounted amount)
         // ===================================
 
-        totalAmount: discount
-          ? (totalAmount) - (totalAmount * (discount / 100))
-          : totalAmount,
+        totalAmount: getTotalPrice()
       });
 
       const data = response.data;
@@ -247,8 +267,11 @@ const PlaceOrder = () => {
               //   : totalAmount,
 
               // totalAmount only
-              total:totalAmount,
-              discounted_amount: totalAmount * (discount / 100),
+              address_id: shipAddress,
+              total_price:totalPrice,
+              total_discount:totalDiscount,
+              coupon_discount:discount,
+              final_amount:getTotalPrice(),
               payment_method: method,
               payment_status: 'CONFIRMED',
               couponCode: couponCode,
@@ -260,7 +283,8 @@ const PlaceOrder = () => {
             );
             navigate("/order-success", { state: { orderId: res.data.order_id } });
           } catch (error) {
-            console.log(error.response?.data);
+            console.log(error)
+            console.log(error?.response?.data);
             toast.error(error?.response?.data?.error);
           }
         },

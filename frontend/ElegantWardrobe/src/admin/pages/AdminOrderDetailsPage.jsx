@@ -396,7 +396,7 @@ function AdminOrderDetailsPage() {
             <div className="text-gray-500 font-medium">Grand Total:</div>
             <div className="font-medium text-green-600">
               {currency}
-              {orderDetails?.total}
+              {orderDetails?.final_amount}
             </div>
           </div>
         </div>

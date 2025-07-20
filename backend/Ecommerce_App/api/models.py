@@ -269,8 +269,15 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     shipping_chrg = models.FloatField(default=0)
     order_no = models.CharField(max_length=100, unique=True,null=True)
-    total = models.DecimalField(max_digits=10, decimal_places=2)
-    discounted_amount = models.DecimalField(max_digits=10, decimal_places=2,default=0)
+
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total_discount = models.DecimalField(max_digits=10, decimal_places=2,default=0)
+    coupon_discount = models.IntegerField(default=0,null=True)
+    final_amount = models.DecimalField(max_digits=10, decimal_places=2,default=0)
+
+    # total = models.DecimalField(max_digits=10, decimal_places=2)
+    # discounted_amount = models.DecimalField(max_digits=10, decimal_places=2,default=0)
+
     currency = models.CharField(max_length=10, default='INR')
     razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
     razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
@@ -287,9 +294,9 @@ class Order(models.Model):
             request = kwargs.pop('request', None)
             if request and request.session.get('discount_amount'):
                 try:
-                    # Apply discount to total
-                    discount = Decimal(request.session.get('discount_amount', '0'))
-                    self.total = self.total - discount
+                    # # Apply discount to total
+                    # discount = Decimal(request.session.get('discount_amount', '0'))
+                    # self.total = self.total - discount
                     
                     # Clear coupon data from session
                     request.session.pop('coupon_id', None)

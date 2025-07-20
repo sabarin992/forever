@@ -16,7 +16,6 @@ const RelatedProducts = ({productId}) => {
       try {
         const res = await api.get(`/related_products/${productId}/`)
         setRelated(res.data)
-        console.log(res.data);
         
         
       } catch (error) {

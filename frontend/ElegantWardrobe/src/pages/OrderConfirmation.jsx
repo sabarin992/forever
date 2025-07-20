@@ -122,8 +122,8 @@ export default function OrderConfirmation() {
             </h2>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Items Total:</span>
-                <span className="text-gray-800">{currency}{orderDetails.total}</span>
+                <span className="text-gray-600">Total Price:</span>
+                <span className="text-gray-800">{currency}{orderDetails.total_price}</span>
               </div>
 
               {/* GST */}
@@ -146,14 +146,22 @@ export default function OrderConfirmation() {
               {/* ================= */}
 
               <div className="flex justify-between">
-                <span className="text-gray-600">Discounted Amount:</span>
-                <span className="text-gray-800">{currency}{orderDetails.discounted_amount}</span>
+                <span className="text-gray-600">Total Discount:</span>
+                <span className="text-gray-800">{currency}{orderDetails.total_discount}</span>
               </div>
+             {
+              orderDetails.coupon_discount?
+               <div className="flex justify-between">
+                <span className="text-gray-600">Coupon Discount:</span>
+                <span className="text-gray-800">{orderDetails.coupon_discount}%</span>
+              </div>
+              :null
+             }
 
               <div className="border-t border-gray-200 pt-2">
                 <div className="flex justify-between font-semibold">
-                  <span>Total Amount:</span>
-                  <span>{currency}{orderDetails?.total-orderDetails?.discounted_amount}</span>
+                  <span>Final Amount:</span>
+                  <span>{currency}{orderDetails?.final_amount}</span>
                 </div>
               </div>
             </div>

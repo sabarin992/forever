@@ -298,45 +298,31 @@ const OrderDetails = () => {
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
           <h2 className="font-medium text-gray-700 mb-4">Price Details</h2>
           <div className="space-y-2">
+
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal:</span>
-              <span className="text-gray-800">
-                {currency} {orderDetails.total}
-              </span>
-            </div>
-
-            {/* GST */}
-            {/* === */}
-
-            {/* <div className="flex justify-between">
-              <span className="text-gray-600">GST (12%):</span>
-              <span className="text-gray-800">
-                {currency} {(orderDetails.total * 0.12).toFixed(2)}
-              </span>
-            </div> */}
-
-
-            {/* Shipping Address */}
-            {/* ================ */}
-
-            {/* <div className="flex justify-between">
-              <span className="text-gray-600">Shipping:</span>
-              <span className="text-gray-800">{currency} 40</span>
-            </div> */}
-
-            {/* Discounted Amount */}
-              {/* ================= */}
-
-              <div className="flex justify-between">
-                <span className="text-gray-600">Discounted Amount:</span>
-                <span className="text-gray-800">{currency}{orderDetails.discounted_amount}</span>
+                <span className="text-gray-600">Total Price:</span>
+                <span className="text-gray-800">{currency}{orderDetails.total_price}</span>
               </div>
+
+             <div className="flex justify-between">
+                <span className="text-gray-600">Total Discount:</span>
+                <span className="text-gray-800">{currency}{orderDetails.total_discount}</span>
+              </div>
+
+             {
+              orderDetails.coupon_discount?
+               <div className="flex justify-between">
+                <span className="text-gray-600">Coupon Discount:</span>
+                <span className="text-gray-800">{orderDetails.coupon_discount}%</span>
+              </div>
+              :null
+             }
 
 
             <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
               <span>Total:</span>
               <span>
-                {currency}{orderDetails?.total-orderDetails?.discounted_amount}
+                {currency}{orderDetails?.final_amount}
               </span>
             </div>
           </div>

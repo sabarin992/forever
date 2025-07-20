@@ -37,7 +37,6 @@ const Product = () => {
         const res = await api.get(`/product_details/${productId}/`);
         setProductData(res.data);
         setImage(res.data.image);
-        console.log(res.data);
       } catch (error) {
         console.log(error.message);
       } finally {
@@ -64,7 +63,6 @@ const Product = () => {
 
   // function to add product to cart
   const addToCart = async (itemId, size) => {
-    console.log("itemId", itemId);
 
     if (!size) {
       toast.error("Select the product size");
@@ -122,7 +120,6 @@ const Product = () => {
     } catch (error) {
       console.log(error.message);
     }
-    console.log(color, size);
   };
 
   if (isLoading) {

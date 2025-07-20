@@ -9,8 +9,6 @@ const ProductItem = ({ id, image, name, finalPrice, realPrice, discountedPercent
   const { currency, isChangeWishList, setIsChangeWishList } = useContext(ShopContext)
   const [isInWishlist, setIsInWishList] = useState(false)
   const [imageLoading, setImageLoading] = useState(true)
-
-  console.log(finalPrice);
   
   const scrollToTop = () => {
     window.scrollTo({

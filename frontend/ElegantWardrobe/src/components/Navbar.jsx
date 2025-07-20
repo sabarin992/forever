@@ -16,7 +16,6 @@ const Navbar = () => {
   };
 
   const token = localStorage.getItem(ACCESS_TOKEN)
-  console.log(`AccessToken = ${token}`);
   
 
   return (
@@ -119,7 +118,6 @@ const Navbar = () => {
         <img
           onClick={() => {
             setVisible(true);
-            console.log(visisble);
           }}
           src={assets.menu_icon}
           className="w-5 cursor-pointer sm:hidden"

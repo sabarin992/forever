@@ -21,7 +21,6 @@ const Collection = () => {
   const [hasPrevious, setHasPrevious] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
 
-  console.log(products);
 
   // toggle category
   const toggleCategory = (e) => {
@@ -77,10 +76,7 @@ const Collection = () => {
       const res = await api.get("filter_product", {
         params: { page: activePage },
       });
-
       setProducts(res.data.results);
-      console.log(res.data.results);
-
       setHasNext(res.data.has_next);
       setHasPrevious(res.data.has_previous);
       setTotalPages(res.data.total_pages);

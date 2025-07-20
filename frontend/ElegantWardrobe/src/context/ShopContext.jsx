@@ -43,7 +43,6 @@ const ShopContextProvider = (props) => {
       try {
         const res = await api.get("/products/");
         setProducts(res.data);
-        console.log(res.data);
         
       } catch (error) {
         console.error("Error fetching products:", error.message);
@@ -93,9 +92,7 @@ const ShopContextProvider = (props) => {
         });
         // console.log(res.data.cart_data);
 
-        setCartData(res.data.cart_data.results);
-        console.log(res.data.cart_data);
-        
+        setCartData(res.data.cart_data.results);       
         setHasNext(res.data.cart_data.has_next);
         setHasPrevious(res.data.cart_data.has_previous);
         setTotalPages(res.data.cart_data.total_pages);

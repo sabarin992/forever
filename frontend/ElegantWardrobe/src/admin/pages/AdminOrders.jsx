@@ -143,7 +143,7 @@ function AdminOrders() {
                 <td className="py-4 px-4">{order?.order_no}</td>
                 <td className="py-4 px-4">{order?.customer.first_name}</td>
                 <td className="py-4 px-4">{order?.order_date}</td>
-                <td className="py-4 px-4">{currency}{order?.total_amount?.toFixed(2)}</td>
+                <td className="py-4 px-4">{currency}{order?.final_amount?.toFixed(2)}</td>
                 <td className="py-4 px-4">{renderStatus(order?.status)}</td>
                 <td className="py-4 px-4">
                   <div className="flex space-x-2">
