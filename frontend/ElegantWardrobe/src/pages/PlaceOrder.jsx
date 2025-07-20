@@ -19,7 +19,7 @@ const PlaceOrder = () => {
   const [customer, setCustomer] = useState({});
   const [shipAddress, setShipAddress] = useState("");
   const [addresses, setAddresses] = useState([]);
-  const { totalAmount,delivery_fee } = useContext(ShopContext);
+  const {totalPrice,totalDiscount,delivery_fee } = useContext(ShopContext);
   const [discount, setDiscount] = useState(null);
   const navigate = useNavigate();
   const [showCoupons, setShowCoupons] = useState(false);
@@ -350,7 +350,7 @@ const PlaceOrder = () => {
           </Button>
         </div>
         <div className="flex flex-col gap-4">
-          {addresses.map((address) => (
+          {addresses?.map((address) => (
             <div
               key={address.id}
               className="flex justify-between items-center border p-4 rounded-md"
@@ -379,12 +379,12 @@ const PlaceOrder = () => {
       {/* ---------------- Right Side -------------- */}
       <div className="mt-8">
         <div className="my-8 min-w-80 ">
-          <CartTotal totalAmount={totalAmount} discount={discount} />
+          <CartTotal totalPrice = {totalPrice} totalDiscount={totalDiscount} discount={discount} />
         </div>
         {/* coupon */}
         <div className="flex gap-4 items-center">
           <Coupon
-            cartTotal={totalAmount}
+            cartTotal={totalPrice}
             discount={discount}
             setDiscount={setDiscount}
             couponCode = {couponCode}

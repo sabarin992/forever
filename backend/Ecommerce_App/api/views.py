@@ -313,7 +313,6 @@ def google_login(request):
 def register(request):
     
     if request.method == 'POST':
-        print(request.data)
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -388,8 +387,6 @@ def add_product(request):
 @api_view(['PUT','GET'])
 @permission_classes([AllowAny])
 def edit_product(request,id):
-
-    print(f'product_id = {id}')
     product_variant = ProductVariant.objects.get(pk = id)
     if request.method == 'GET':
         product_data ={
@@ -514,8 +511,6 @@ def send_otp(request):
     """
     API endpoint to generate and send OTP to an email.
     """
-
-    print(request.data)
     email = request.data.get("email")
     phone_number = request.data.get("phone_number")
     password1 = request.data.get("password1")
@@ -525,7 +520,6 @@ def send_otp(request):
     
     is_email_exist = CustomUser.objects.filter(email=email).exists()
     is_phone_number_exist = CustomUser.objects.filter(phone_number=phone_number).exists()
-    print(f'phone_number = {phone_number} and is_exit = {is_phone_number_exist}')
     if is_email_exist:
         return Response({'error':'Email Already Exist'},status=status.HTTP_400_BAD_REQUEST)
     elif is_phone_number_exist:
@@ -552,7 +546,6 @@ def verify_otp(request):
     """
     email = request.data.get("email")
     otp_entered = request.data.get("otp")
-    print(f'otp_entered = {otp_entered}')
 
     if not email or not otp_entered:
         return Response({"error": "Email and OTP are required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -815,7 +808,6 @@ def edit_category(request, id):
     category = Category.objects.get(pk=id)
     name = request.data["name"]
     if category.name.lower() == name.lower():
-        print('Same')
         pass
     elif Category.objects.filter(name__iexact=name).exists():
         return Response({'error': 'Category with this name already exists.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1040,7 +1032,6 @@ def get_all_cart_products(request):
     carts = CartItem.objects.filter(user = request.user)
     total_price = carts.aggregate(Sum('total_price'))
     total_discount = carts.aggregate(Sum('total_discount'))
-
     data = paginate_queryset(carts,5,request)
     cart_data = [
         {"id":item.id,
@@ -1249,13 +1240,7 @@ def get_all_orders(request):
     response = data['paginator'].get_paginated_response(orders_data)
     response.data['has_next'] = bool(data['paginator'].get_next_link())
     response.data['has_previous'] = bool(data['paginator'].get_previous_link())
-    response.data['total_pages'] = data['total_pages']
-
-
-
-
- 
-    
+    response.data['total_pages'] = data['total_pages']    
     return Response(response.data, status=status.HTTP_200_OK)
 
 
@@ -1473,7 +1458,6 @@ def retry_payment(request, order_id):
         # Check if payment is actually pending
         if order.status != 'PAYMENT_PENDING' or order.payment.lower() != 'razorpay':
             return Response({'success': False, 'message': 'Invalid payment retry request'})
-        print(order.id)
         # Create Razorpay order
         client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         

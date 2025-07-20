@@ -2,8 +2,23 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 
-const CartTotal = ({totalPrice,discount,totalDiscount}) => {
-  const { currency, delivery_fee} = useContext(ShopContext);
+const CartTotal = ({ totalPrice, totalDiscount, discount }) => {
+  const { currency, delivery_fee } = useContext(ShopContext);
+
+  const coupon_discount = discount
+    ? ((totalPrice - totalDiscount) * discount) / 100
+    : 0;
+
+    
+  const total_price =
+    totalDiscount && discount
+      ? totalPrice - (totalDiscount + (((totalPrice-totalDiscount)*discount)/100))
+      : totalDiscount
+      ? totalPrice - totalDiscount
+      : discount
+      ? totalPrice - discount
+      : totalPrice;
+
 
   return (
     <div className="w-full">
@@ -19,7 +34,7 @@ const CartTotal = ({totalPrice,discount,totalDiscount}) => {
           </p>
         </div>
         <div className="flex justify-between">
-          <p>Discount</p>
+          <p>Offer Discount</p>
           <p>
             {currency}
             {totalDiscount}
@@ -40,17 +55,6 @@ const CartTotal = ({totalPrice,discount,totalDiscount}) => {
 
         <hr /> */}
 
-        {discount && <>
-          <div className="flex justify-between">
-          <p>Discount</p>
-          <p>
-            
-            {currency} {(totalAmount)*(discount/100)}
-          </p>
-        </div>
-        <hr />
-        </>}
-
         {/* If you want to add delivery fee+( reduce discount amount) to the total amount then use this code */}
         {/* ================================================================================================ */}
 
@@ -61,15 +65,52 @@ const CartTotal = ({totalPrice,discount,totalDiscount}) => {
             :totalAmount+delivery_fee}.00</b>
         </div> */}
 
-         {/* elif you want to add discount with total amount then use this code */}
+        {/* elif you want to add discount with total amount then use this code */}
         {/* ========================================================================== */}
 
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
             <b>Total</b>
             <b>{currency} {totalPrice - totalDiscount}.00</b>
-        </div>
+        </div> */}
 
-
+        {!discount ? (
+          <div className="flex justify-between">
+            <b>Total</b>
+            <b>
+              {/* {currency} {totalPrice - totalDiscount}.00 */}
+              {currency} {total_price}.00
+            </b>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 mt-2 text-sm">
+            <div className="flex justify-between">
+              <p>Subtotal</p>
+              <p>
+                {currency} {totalPrice - totalDiscount}.00
+              </p>
+            </div>
+            <div className="flex justify-between">
+              <p>Coupon Discount</p>
+              <p>
+                {currency} {coupon_discount}.00
+              </p>
+            </div>
+            <hr />
+            <div className="flex justify-between">
+              <b>Total</b>
+              <b>
+                {/* {currency}{" "}
+                {totalPrice -
+                  totalDiscount -
+                  ((totalPrice - totalDiscount) * discount) / 100}
+                .00 */}
+                {currency}{" "}
+                {total_price}
+                .00
+              </b>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

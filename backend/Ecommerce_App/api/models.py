@@ -218,7 +218,7 @@ class CartItem(models.Model):
         # self.total_amount = price_to_use*self.quantity
 
         self.total_price = self.product_variant.price * self.quantity
-        self.total_discount = self.product_variant.final_price * self.quantity
+        self.total_discount = (self.product_variant.price * Decimal(str(self.product_variant.product_discount)) / 100) * self.quantity
         
         super().save(*args, **kwargs)
 

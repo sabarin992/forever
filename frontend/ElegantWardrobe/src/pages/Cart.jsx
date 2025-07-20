@@ -186,7 +186,7 @@ const Cart = () => {
               {/* Discounted Price - 2 columns */}
               <div className="col-span-2 text-center">
                 <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Final Price
+                  Discounted Amount
                 </label>
                 <p className="text-base font-semibold text-gray-900">
                   {currency}{" "}
