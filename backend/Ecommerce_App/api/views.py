@@ -714,7 +714,12 @@ def filter_product(request):
 @permission_classes([AllowAny])
 def product_details(request,id):
     product = ProductVariant.objects.get(pk = id)
+    is_in_wishlist = Wishlist.objects.filter(user=request.user, product_variant=product).exists()
+    is_in_cart = CartItem.objects.filter(user=request.user, product_variant=product).exists()
     product_data = product_data = get_product_data(request,is_more_products=False,product=product)
+    # {'result':product_data,'is_in_wishlist':is_in_wishlist,'is_in_cart':is_in_cart}
+    product_data['is_in_wishlist'] = is_in_wishlist
+    product_data['is_in_cart'] = is_in_cart
     return Response(product_data,status=status.HTTP_200_OK)
 
 

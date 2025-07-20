@@ -35,6 +35,8 @@ const Product = () => {
       try {
         setIsLoading(true);
         const res = await api.get(`/product_details/${productId}/`);
+        console.log(res.data);
+
         setProductData(res.data);
         setImage(res.data.image);
       } catch (error) {
@@ -63,7 +65,6 @@ const Product = () => {
 
   // function to add product to cart
   const addToCart = async (itemId, size) => {
-
     if (!size) {
       toast.error("Select the product size");
       return;
@@ -235,34 +236,33 @@ const Product = () => {
 
               {/* Price */}
               <div className="flex items-baseline gap-4">
-                {productData.discounted_amount != 0?
-                <>
-                <span className="text-4xl lg:text-5xl font-bold text-gray-900">
-                  {currency}
-                  {productData.discounted_amount}
-                </span>
-                <span className="text-2xl text-gray-400 line-through font-medium">
-                  {currency}
-                  {productData.price}
-                </span>
-                 <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">
-                  {Math.round(
-                    ((productData.price - productData.discounted_amount) /
-                      productData.price) *
-                      100
-                  )}
-                  % OFF
-                </span>
-                </>
-                :
-                <>
-                <span className="text-4xl lg:text-5xl font-bold text-gray-900">
-                  {currency}
-                  {productData.price}
-                </span>
-                </>
-                }
-               
+                {productData.discounted_amount != 0 ? (
+                  <>
+                    <span className="text-4xl lg:text-5xl font-bold text-gray-900">
+                      {currency}
+                      {productData.discounted_amount}
+                    </span>
+                    <span className="text-2xl text-gray-400 line-through font-medium">
+                      {currency}
+                      {productData.price}
+                    </span>
+                    <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm font-bold">
+                      {Math.round(
+                        ((productData.price - productData.discounted_amount) /
+                          productData.price) *
+                          100
+                      )}
+                      % OFF
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-4xl lg:text-5xl font-bold text-gray-900">
+                      {currency}
+                      {productData.price}
+                    </span>
+                  </>
+                )}
               </div>
 
               {/* Description */}
@@ -389,50 +389,54 @@ const Product = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <button
-                  onClick={() => addToCart(productData.id, size)}
-                  className="flex-1 bg-black hover:from-blue-700  text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 group"
-                >
-                  <svg
-                    className="w-6 h-6 group-hover:animate-bounce"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {!productData.is_in_cart ? (
+                  <button
+                    onClick={() => addToCart(productData.id, size)}
+                    className="flex-1 bg-black hover:from-blue-700  text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 group"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 2.5M7 13l2.5 2.5m6 1.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-9 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
-                    />
-                  </svg>
-                  ADD TO CART
-                </button>
-                <button
-                  onClick={() => addToWishList(productData.id)}
-                  className={`px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 group ${
-                    isWishlisted
-                      ? "bg-red-100 text-red-600 hover:bg-red-200"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  <svg
-                    className={`w-6 h-6 group-hover:animate-pulse ${
-                      isWishlisted ? "fill-current" : ""
+                    <svg
+                      className="w-6 h-6 group-hover:animate-bounce"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 2.5M7 13l2.5 2.5m6 1.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm-9 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                      />
+                    </svg>
+                    ADD TO CART
+                  </button>
+                ) : null}
+                {!productData.is_in_wishlist ? (
+                  <button
+                    onClick={() => addToWishList(productData.id)}
+                    className={`px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-3 group ${
+                      isWishlisted
+                        ? "bg-red-100 text-red-600 hover:bg-red-200"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
-                    fill={isWishlisted ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                  {isWishlisted ? "WISHLISTED" : "WISHLIST"}
-                </button>
+                    <svg
+                      className={`w-6 h-6 group-hover:animate-pulse ${
+                        isWishlisted ? "fill-current" : ""
+                      }`}
+                      fill={isWishlisted ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                    {isWishlisted ? "WISHLISTED" : "WISHLIST"}
+                  </button>
+                ) : null}
               </div>
 
               {/* Product Features */}
