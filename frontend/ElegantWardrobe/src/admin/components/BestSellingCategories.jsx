@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useContext, useEffect, useState } from "react"
 import { ShopContext } from "@/context/ShopContext"
-import api from "@/api"
+import api, { adminApi } from "@/api"
 
 // Sample data matching your backend structure for categories
 const sampleData = [
@@ -98,7 +98,7 @@ export default function BestSellingCategories() {
   useEffect(()=>{
     const getProductData = async()=>{
       try {
-        const res = await api.get('/best_selling_categories/')
+        const res = await adminApi.get('/best_selling_categories/')
         setData(res.data);
         
       } catch (error) {

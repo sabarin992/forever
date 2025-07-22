@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
-import api from '../../api';
+import api, { adminApi } from '../../api';
 import { toast } from 'react-toastify';
 
 const AdminUserEdit = () => {
@@ -27,7 +27,7 @@ const AdminUserEdit = () => {
         
           try {
 
-            const res = await api.post(`/edit_user/${userDetails.id}/`,formData)
+            const res = await adminApi.post(`/edit_user/${userDetails.id}/`,formData)
             toast.success(res.data)
             navigate('/admin/users')
             

@@ -19,7 +19,7 @@ import {
   Download,
   Loader,
 } from "lucide-react";
-import api from "@/api";
+import api, { adminApi } from "@/api";
 import { ShopContext } from "@/context/ShopContext";
 
 const SalesReport = () => {
@@ -51,7 +51,7 @@ const SalesReport = () => {
         url += `&start_date=${customRange.startDate}&end_date=${customRange.endDate}`;
       }
 
-      const response = await api.get(url);
+      const response = await adminApi.get(url);
       console.log(response.data);
       
       setReportData(response.data);
@@ -72,7 +72,7 @@ const SalesReport = () => {
         url += `&start_date=${customRange.startDate}&end_date=${customRange.endDate}`;
       }
 
-      const response = await api.get(url, { responseType: "blob" });
+      const response = await adminApi.get(url, { responseType: "blob" });
 
       // Create blob link to download
       const blob = new Blob([response.data]);

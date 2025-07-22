@@ -1,4 +1,4 @@
-import api from "@/api";
+import api, { adminApi } from "@/api";
 import { ShopContext } from "@/context/ShopContext";
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ function AdminOrderDetailsPage() {
   useEffect(() => {
     const getOrderDetails = async () => {
       try {
-        const res = await api.get(`/order_details/${orderId}/`);
+        const res = await adminApi.get(`/order_details/${orderId}/`);
         console.log(res.data.items);
 
         setOrderDetails(res.data);
@@ -34,7 +34,7 @@ function AdminOrderDetailsPage() {
 
   const updateOrderStatus = async (id) => {
     try {
-      const res = await api.put(`/update_order_status/${id}/`, {
+      const res = await adminApi.put(`/update_order_status/${id}/`, {
         status: orderStatus,
       });
       toast.success(res.data.message);
@@ -48,7 +48,7 @@ function AdminOrderDetailsPage() {
   const handleViewReturnInfo = async (item) => {
     console.log(item);
     try {
-      const res = await api.get(`return_reasons/${item.item_id}/`);
+      const res = await adminApi.get(`return_reasons/${item.item_id}/`);
       setReasons(res.data);
       setSelectedReturnItem(item);
       setShowReturnModal(true);
@@ -67,7 +67,7 @@ function AdminOrderDetailsPage() {
   // handle function for approve or reject
   const handleApproveReject = async (status) => {
     try {
-      const res = await api.put(
+      const res = await adminApi.put(
         `/handle_return_approval/${selectedReturnItem.item_id}/`,
         {
           action: status,

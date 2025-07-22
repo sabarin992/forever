@@ -3,7 +3,7 @@ import { GoogleLogin } from '@react-oauth/google';
 
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../constants';
+import { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN } from '../constants';
 import { toast } from 'react-toastify';
 
 const GoogleAuth = () => {
@@ -19,8 +19,8 @@ const GoogleAuth = () => {
       });
 
       // Store tokens (e.g. in localStorage or Redux)
-      localStorage.setItem(ACCESS_TOKEN, res.data.access);
-      localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+      localStorage.setItem(USER_ACCESS_TOKEN, res.data.access);
+      localStorage.setItem(USER_REFRESH_TOKEN, res.data.refresh);
       toast.success("Login Successful");
       navigate('/');
     } catch (error) {

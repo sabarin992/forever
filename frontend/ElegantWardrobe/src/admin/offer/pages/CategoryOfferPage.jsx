@@ -1,4 +1,4 @@
-import api from '@/api'
+import api, { adminApi } from '@/api'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Edit, Trash } from "lucide-react";
@@ -14,7 +14,7 @@ const CategoryOfferPage = () => {
    useEffect(()=>{
     const getOffers = async()=>{
         try {
-            const res = await api.get('/category_offers/')
+            const res = await adminApi.get('/category_offers/')
             setOffers(res?.data?.category_offers)
             setCategories(res?.data?.categories)
             
@@ -27,7 +27,7 @@ const CategoryOfferPage = () => {
 
    const removeCategoryOffer = async(id)=>{
       try {
-        const res = await api.delete(`/category_offers/${id}/`)
+        const res = await adminApi.delete(`/category_offers/${id}/`)
         if(res.status === 204){
           toast.success('Product offer deleted successfully!')
           setIsChangeOffer(!isChangeOffer)

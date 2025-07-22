@@ -3,7 +3,7 @@
 import { use, useContext, useEffect, useState } from "react";
 import { ChevronDown, Filter, PlusCircle, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import api from "@/api";
+import {adminApi} from "@/api";
 import { useNavigate } from "react-router-dom";
 import Pagination from "@/components/Pagination";
 import { SearchContext } from "@/context/SearchContextProvider";
@@ -24,7 +24,7 @@ export default function AdminProducts() {
 
   useEffect(() => {
     const getProducts = async () => {
-      const res = await api.get(
+      const res = await adminApi.get(
         `/get_all_products/${search && `?search=${search}`}`,
         { params: { page: activePage } }
       );
@@ -40,8 +40,7 @@ export default function AdminProducts() {
   // Function to handle the toggle switch for listing/unlisting products
   const handleToggle = async (id) => {
     try {
-      const res = await api.put(`/list_unlist_product/${id}/`);
-      console.log(res.data);
+      const res = await adminApi.put(`/list_unlist_product/${id}/`);
       if (res.status === 200) {
         const updatedProducts = products.map((product) =>
           product.id === id

@@ -35,7 +35,7 @@ import AddAddress from "./user_profile/AddAddress";
 import EditAddress from "./user_profile/EditAddress";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import AdminLogin from "./admin/pages/AdminLogin";
-import { ADMIN_TOKEN } from "./constants";
+import { ADMIN_ACCESS_TOKEN } from "./constants";
 import AdminPrivateRoute from "./admin/components/AdminPrivateRoute";
 import OrderDetails from "./pages/OrderDetails";
 import InvoiceComponent from "./components/InvoicePDF";
@@ -64,7 +64,7 @@ const App = () => {
   const [token, setToken] = useState("");
 
   useEffect(() => {
-    setToken(localStorage.getItem(ADMIN_TOKEN));
+    setToken(localStorage.getItem(ADMIN_ACCESS_TOKEN));
   }, []);
   return (
     <div>

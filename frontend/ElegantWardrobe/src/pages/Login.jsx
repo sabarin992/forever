@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import api from "../api";
 import { toast } from "react-toastify";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN } from "../constants";
 import { useNavigate } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import GoogleAuth from "../components/GoogleAuth";
@@ -108,8 +108,8 @@ const Login = () => {
     setIsSubmitting(true);
     try {
       const res = await api.post("/login/", { email, password });
-      localStorage.setItem(ACCESS_TOKEN, res.data.access);
-      localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+      localStorage.setItem(USER_ACCESS_TOKEN, res.data.access);
+      localStorage.setItem(USER_REFRESH_TOKEN, res.data.refresh);
       toast.success("Login Successful");
       navigate("/");
     } catch (error) {
@@ -237,7 +237,7 @@ export default Login;
 // import React, { useState } from "react";
 // import api from "../api";
 // import { toast } from "react-toastify";
-// import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+// import { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN } from "../constants";
 // import { useNavigate } from "react-router-dom";
 // import { GoogleOAuthProvider } from "@react-oauth/google";
 // import GoogleAuth from "../components/GoogleAuth";
@@ -342,8 +342,8 @@ export default Login;
 //     setIsSubmitting(true);
 //     try {
 //       const res = await api.post("/login/", { email, password });
-//       localStorage.setItem(ACCESS_TOKEN, res.data.access);
-//       localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+//       localStorage.setItem(USER_ACCESS_TOKEN, res.data.access);
+//       localStorage.setItem(USER_REFRESH_TOKEN, res.data.refresh);
 //       toast.success("Login Successful");
 //       navigate("/");
 //     } catch (error) {
@@ -450,7 +450,7 @@ export default Login;
 // // import React, { useState } from "react";
 // // import api from "../api";
 // // import { toast } from "react-toastify";
-// // import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+// // import { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN } from "../constants";
 // // import { useNavigate } from "react-router-dom";
 // // import { GoogleOAuthProvider } from "@react-oauth/google";
 // // import GoogleAuth from "../components/GoogleAuth";
@@ -465,8 +465,8 @@ export default Login;
 // //     e.preventDefault();
 // //     try {
 // //       const res = await api.post("/login/", { email, password });
-// //       localStorage.setItem(ACCESS_TOKEN, res.data.access);
-// //       localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+// //       localStorage.setItem(USER_ACCESS_TOKEN, res.data.access);
+// //       localStorage.setItem(USER_REFRESH_TOKEN, res.data.refresh);
 // //       toast.success("Login Successful");
 // //       navigate("/");
 // //     } catch (error) {

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import api from "../../api";
+import {adminApi} from "../../api";
 import { useLocation, useNavigate } from "react-router-dom";
 import SearchComponent from "../components/SearchComponent";
 import { SearchContext } from "../../context/SearchContextProvider";
@@ -21,8 +21,7 @@ export default function AdminUsers() {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await api.get(`/users/${search && `?search=${search}`}`,{params:{page:activePage}});
-        console.log(res.data);
+        const res = await adminApi.get(`/users/${search && `?search=${search}`}`,{params:{page:activePage}});
         setUsers(res.data.results);
         setHasNext(res.data.has_next)
         setHasPrevious(res.data.has_previous)
@@ -40,8 +39,11 @@ export default function AdminUsers() {
 
   const toggleBlockStatus = async (userId) => {
     try {
-      const res = await api.get(`/block_unblock_user/${userId}/`);
-      setUsers(res.data);
+      const res = await adminApi.get(`/block_unblock_user/${userId}/`);
+      setUsers(res.data.results);
+        setHasNext(res.data.has_next)
+        setHasPrevious(res.data.has_previous)
+        setTotalPages(res.data.total_pages)
     } catch (error) {}
   };
 

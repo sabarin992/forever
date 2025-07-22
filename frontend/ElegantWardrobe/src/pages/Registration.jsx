@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import api from "../api";
 import { toast } from "react-toastify";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN } from "../constants";
 import { useNavigate } from "react-router-dom";
 import OtpVerification from "../components/OtpVerification";
 import { ClipLoader } from "react-spinners";
@@ -359,7 +359,7 @@ export default Registration;
 // import React, { useState } from "react";
 // import api from "../api";
 // import { toast } from "react-toastify";
-// import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+// import { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN } from "../constants";
 // import { useNavigate } from "react-router-dom";
 // import OtpVerification from "../components/OtpVerification";
 // import { ClipLoader } from "react-spinners";

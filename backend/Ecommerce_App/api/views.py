@@ -247,6 +247,8 @@ def admin_login(request):
 
     if not user.is_staff:
         return Response({'error': 'You are not authorized to access the admin panel.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    print(email,password)
 
     refresh = RefreshToken.for_user(user)
     return Response({
@@ -329,6 +331,7 @@ def register(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def add_product(request):
+    print(f'User = {request.user}')
     data = request.data
     result = querydict_to_dict(data)
     
@@ -755,8 +758,8 @@ def related_products(request,id):
 @permission_classes([AllowAny])
 def get_all_users(request):
     search = request.GET.get("search")  # Search query
-    users = CustomUser.objects.filter(first_name__icontains=search).order_by('-created_at') if search else CustomUser.objects.all().order_by('-created_at')
-    data = paginate_queryset(users,3,request)
+    users = CustomUser.objects.filter(first_name__icontains=search,is_staff = False).order_by('-created_at') if search else CustomUser.objects.filter(is_staff = False).order_by('-created_at')
+    data = paginate_queryset(users,5,request)
     users_data = get_users_data(request,users=data['products'])
     response = data['paginator'].get_paginated_response(users_data)
     response.data['has_next'] = bool(data['paginator'].get_next_link())
@@ -771,9 +774,14 @@ def block_unblock_user(request,id):
     user = CustomUser.objects.get(pk = id)
     user.is_active = False if user.is_active else True
     user.save()
-    users = CustomUser.objects.all()
-    users_data = get_users_data(request,users=users)
-    return Response(users_data,status=status.HTTP_200_OK)
+    users = CustomUser.objects.all().order_by('-created_at')
+    data = paginate_queryset(users,5,request)
+    users_data = get_users_data(request,users=data['products'])
+    response = data['paginator'].get_paginated_response(users_data)
+    response.data['has_next'] = bool(data['paginator'].get_next_link())
+    response.data['has_previous'] = bool(data['paginator'].get_previous_link())
+    response.data['total_pages'] = data['total_pages']
+    return Response(response.data,status=status.HTTP_200_OK)
 
 # for edit user
 @api_view(['POST'])
@@ -791,6 +799,7 @@ def edit_user(request,id):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_all_categories(request):
+    print(request.user)
     search = request.GET.get("search")
     if search:
         categories = Category.objects.filter(name__icontains=search)

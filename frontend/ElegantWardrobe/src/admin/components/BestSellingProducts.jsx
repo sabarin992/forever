@@ -2,7 +2,7 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import api from "@/api"
+import api, { adminApi } from "@/api"
 import { useContext, useEffect, useState } from "react"
 import { ShopContext } from "@/context/ShopContext"
 
@@ -55,7 +55,7 @@ export default function BestSellingProducts() {
   useEffect(()=>{
     const getProductData = async()=>{
       try {
-        const res = await api.get('/best_selling_products/')
+        const res = await adminApi.get('/best_selling_products/')
         setData(res.data);
         
       } catch (error) {

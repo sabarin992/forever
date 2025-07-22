@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CouponForm from '../components/CouponForm';
 import CouponList from '../components/CouponList';
-import api from '@/api';
+import api, { adminApi } from '@/api';
 import { toast } from 'react-toastify';
 
 
@@ -20,7 +20,7 @@ const CouponManager = () => {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/coupons/');
+      const response = await adminApi.get('/coupons/');
       setCoupons(response.data);
       setError(null);
     } catch (err) {
@@ -39,7 +39,7 @@ const CouponManager = () => {
   // Create new coupon
   const handleCreateCoupon = async (couponData) => {
     try {
-      const response = await api.post('/coupons/', couponData);
+      const response = await adminApi.post('/coupons/', couponData);
       setCoupons([...coupons, response.data]);
       setIsFormOpen(false);
       toast.success('Coupon Successfully Created')
@@ -52,7 +52,7 @@ const CouponManager = () => {
   // Update existing coupon
   const handleUpdateCoupon = async (couponData) => {
     try {
-      const response = await api.put(`/coupons/${couponData.id}/`, couponData);
+      const response = await adminApi.put(`/coupons/${couponData.id}/`, couponData);
       setCoupons(coupons.map(coupon => 
         coupon.id === couponData.id ? response.data : coupon
       ));
@@ -69,7 +69,7 @@ const CouponManager = () => {
   const handleDeleteCoupon = async (id) => {
     if (window.confirm('Are you sure you want to delete this coupon?')) {
       try {
-        await api.delete(`/coupons/${id}/`);
+        await adminApi.delete(`/coupons/${id}/`);
         setCoupons(coupons.filter(coupon => coupon.id !== id));
       } catch (err) {
         setError('Failed to delete coupon');

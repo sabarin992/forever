@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { assets } from "../assets/assets";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
-import { ACCESS_TOKEN,REFRESH_TOKEN } from "../constants";
+import { USER_ACCESS_TOKEN,USER_REFRESH_TOKEN } from "../constants";
 
 const Navbar = () => {
   const [visisble, setVisible] = useState(false);
@@ -10,12 +10,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem(ACCESS_TOKEN);
-    localStorage.removeItem(REFRESH_TOKEN);
+    localStorage.removeItem(USER_ACCESS_TOKEN);
+    localStorage.removeItem(USER_REFRESH_TOKEN);
     navigate("/login");
   };
 
-  const token = localStorage.getItem(ACCESS_TOKEN)
+  const token = localStorage.getItem(USER_ACCESS_TOKEN)
   
 
   return (

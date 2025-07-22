@@ -1,4 +1,4 @@
-import api from "@/api";
+import api, { adminApi } from "@/api";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -94,7 +94,7 @@ const AddCategoryOffer = () => {
     console.log(categoryOffer);
 
     try {
-      const res = await api.post("/category_offers/", categoryOffer);
+      const res = await adminApi.post("/category_offers/", categoryOffer);
       if (res.status === 201) {
         toast.success("Category offer created successfully!");
         // Reset form after successful submission
@@ -290,153 +290,3 @@ const AddCategoryOffer = () => {
 };
 
 export default AddCategoryOffer;
-
-// import api from "@/api";
-// import React, { useEffect, useState } from "react";
-// import { useLocation } from "react-router-dom";
-// import { toast } from "react-toastify";
-
-// const AddCategoryOffer = () => {
-//   const [categoryOffer, setCategoryOffer] = useState({
-//     category: 0,
-//     discount_percentage: 0,
-//     valid_from: "",
-//     valid_to: "",
-//   });
-
-//   const location = useLocation();
-//   const categories = location.state;
-//   const addCategoryOffer = async (e) => {
-//     e.preventDefault();
-//     console.log(categoryOffer);
-
-//     try {
-//       const res = await api.post("/category_offers/", categoryOffer);
-//       if (res.status === 201) {
-//         toast.success("category offer created successfully!");
-//       }
-//     } catch (error) {
-//       console.log(error);
-//       if (error.response.data.valid_from) {
-//         toast.error(error.response.data.valid_from[0]);
-//       } else if (error?.response?.data?.category) {
-//         toast.error(error?.response?.data?.category[0]);
-//       }
-//     }
-//   };
-
-//   return (
-//     <>
-//       <h1>This is add category offer</h1>
-//       <form onSubmit={addCategoryOffer}>
-//         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//           {/* Code */}
-
-//           {/* product */}
-//           <div>
-//             <label
-//               className="block text-gray-700 font-medium mb-2"
-//               htmlFor="code"
-//             >
-//               Category*
-//             </label>
-//             <select
-//               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-//               value={categoryOffer.category}
-//               onChange={(e) => {
-//                 setCategoryOffer({
-//                   ...categoryOffer,
-//                   category: Number(e.target.value),
-//                 });
-//               }}
-//             >
-//               <option value="">-- Select a product --</option>
-//               {categories.map((category) => (
-//                 <option key={category.id} value={category.id}>
-//                   {category.name}
-//                 </option>
-//               ))}
-//             </select>
-//           </div>
-
-//           {/* Discount Percentage */}
-//           <div>
-//             <label
-//               className="block text-gray-700 font-medium mb-2"
-//               htmlFor="discount_percent"
-//             >
-//               Discount Percentage*
-//             </label>
-//             <input
-//               type="number"
-//               id="discount_percent"
-//               name="discount_percent"
-//               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-//               onChange={(e) => {
-//                 setCategoryOffer({
-//                   ...categoryOffer,
-//                   discount_percentage: Number(e.target.value),
-//                 });
-//               }}
-//               min="0"
-//               max="100"
-//             />
-//           </div>
-
-//           {/* Valid From */}
-//           <div>
-//             <label
-//               className="block text-gray-700 font-medium mb-2"
-//               htmlFor="valid_from"
-//             >
-//               Valid From*
-//             </label>
-//             <input
-//               type="datetime-local"
-//               id="valid_from"
-//               name="valid_from"
-//               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-//               onChange={(e) => {
-//                 setCategoryOffer({
-//                   ...categoryOffer,
-//                   valid_from: e.target.value,
-//                 });
-//               }}
-//             />
-//           </div>
-
-//           {/* Valid To */}
-//           <div>
-//             <label
-//               className="block text-gray-700 font-medium mb-2"
-//               htmlFor="valid_to"
-//             >
-//               Valid To*
-//             </label>
-//             <input
-//               type="datetime-local"
-//               id="valid_to"
-//               name="valid_to"
-//               onChange={(e) => {
-//                 setCategoryOffer({
-//                   ...categoryOffer,
-//                   valid_to: e.target.value,
-//                 });
-//               }}
-//               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-//             />
-//           </div>
-
-//           <button
-//             type="submit"
-//             className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
-//           >
-//             Add Category Offer
-//           </button>
-//         </div>
-//       </form>
-//     </>
-//   );
-// };
-
-// export default AddCategoryOffer;

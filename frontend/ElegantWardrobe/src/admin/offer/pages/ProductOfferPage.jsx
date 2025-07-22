@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Edit, Trash } from "lucide-react";
-import api from '@/api';
+import api, { adminApi } from '@/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -14,8 +14,8 @@ const ProductOfferPage = () => {
    useEffect(()=>{
     const getOffers = async()=>{
         try {
-            const res = await api.get('/product_offers/')
-            const product_res = await api.get('/products/')
+            const res = await adminApi.get('/product_offers/')
+            const product_res = await adminApi.get('/products/')
             setOffers(res?.data)
             setProducts(product_res?.data[0]?.products)
             // console.log(product_res?.data[0]?.products)
@@ -28,7 +28,7 @@ const ProductOfferPage = () => {
 
    const removeProductOffer = async(id)=>{
       try {
-        const res = await api.delete(`/product_offers/${id}/`)
+        const res = await adminApi.delete(`/product_offers/${id}/`)
         if(res.status === 204){
           toast.success('Product offer deleted successfully!')
         }
