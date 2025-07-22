@@ -78,7 +78,7 @@ const CartTotal = ({ totalPrice, totalDiscount, discount }) => {
             <b>Total</b>
             <b>
               {/* {currency} {totalPrice - totalDiscount}.00 */}
-              {currency} {total_price}.00
+              {currency} {total_price}
             </b>
           </div>
         ) : (
@@ -86,13 +86,13 @@ const CartTotal = ({ totalPrice, totalDiscount, discount }) => {
             <div className="flex justify-between">
               <p>Subtotal</p>
               <p>
-                {currency} {totalPrice - totalDiscount}.00
+                {currency} {totalPrice - totalDiscount}
               </p>
             </div>
             <div className="flex justify-between">
               <p>Coupon Discount</p>
               <p>
-                {currency} {coupon_discount}.00
+                {currency} {coupon_discount}
               </p>
             </div>
             <hr />
@@ -106,7 +106,7 @@ const CartTotal = ({ totalPrice, totalDiscount, discount }) => {
                 .00 */}
                 {currency}{" "}
                 {total_price}
-                .00
+            
               </b>
             </div>
           </div>

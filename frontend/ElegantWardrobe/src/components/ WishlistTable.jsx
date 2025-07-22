@@ -14,8 +14,11 @@ const WishlistTable = ({
   handleConfirmDelete,
   handleCancel,
   isModalOpen,
+  isAddToCartModalOpen,
+  handleConfirmAddToCart,
+  handleAddToCartClick,
+  setIsAddToCartModalOpen
 }) => {
-
   return (
     <div className="w-full overflow-x-auto">
       {/* Header - Desktop */}
@@ -85,6 +88,20 @@ const WishlistTable = ({
             {/* Actions */}
             <div className="flex gap-4">
               <button
+                onClick={() =>
+                  handleAddToCartClick(
+                    item.id,
+                    item.size,
+                    item.color,
+                    item.quantity || 1
+                  )
+                }
+                className="w-full md:w-auto bg-black text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-gray-700"
+              >
+                ADD TO CART
+              </button>
+
+              {/* <button
                 onClick={() => {
                   onAddToCart(item.id, item.size, item.color); // here we want to add quantity. (onAddToCart(item.id,item.size,item.color,item.quantity))
                 }}
@@ -92,7 +109,7 @@ const WishlistTable = ({
                 className="w-full md:w-auto bg-black text-white py-2 px-4 uppercase text-sm tracking-wider hover:bg-gray-700"
               >
                 ADD TO CART
-              </button>
+              </button> */}
               <button
                 onClick={() => handleDeleteClick(item.id)}
                 // disabled={!item.inStock}
@@ -106,6 +123,13 @@ const WishlistTable = ({
                 onClose={handleCancel}
                 onConfirm={handleConfirmDelete}
                 message="Are you sure you want to delete this user?"
+              />
+
+              <ConfirmModal
+                isOpen={isAddToCartModalOpen}
+                onClose={() => setIsAddToCartModalOpen(false)}
+                onConfirm={handleConfirmAddToCart}
+                message="Are you sure you want to add this item to cart?"
               />
             </div>
           </div>

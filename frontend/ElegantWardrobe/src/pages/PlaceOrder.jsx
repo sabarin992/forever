@@ -169,7 +169,10 @@ const PlaceOrder = () => {
   };
 
   const handlePlaceOrder = async () => {
-    console.log(method);
+    if (!shipAddress){
+      toast.error("Address is Required")
+      return
+    }
     try {
       const res = await api.post(`/place_order/`, {
         // address_id: shipAddress,
@@ -224,6 +227,10 @@ const PlaceOrder = () => {
       return;
     }
 
+    if (!shipAddress){
+      toast.error("Address is Required")
+      return
+    }
     try {
       const response = await api.post("create_order/", {
 

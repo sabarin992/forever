@@ -21,6 +21,8 @@ api.interceptors.request.use( // Add access token to every request
   (config) => {
     const token = localStorage.getItem(USER_ACCESS_TOKEN);
     if (token) {
+      console.log(`api token = ${token}`);
+      
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -82,7 +84,7 @@ export const adminApi = axios.create({
 adminApi.interceptors.request.use( // Add access token to every request
   (config) => {
     const token = localStorage.getItem(ADMIN_ACCESS_TOKEN);
-    // console.log(token);
+    console.log(token);
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

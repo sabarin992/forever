@@ -1258,9 +1258,12 @@ def update_order_payment(request):
 @permission_classes([IsAuthenticated])
 def get_all_orders(request):
     search = request.GET.get('search')
-    
-    user = CustomUser.objects.get(pk=request.user.id)
-    orders = Order.objects.filter(user=user).order_by('-id')
+    print(request.user)
+    if not request.user.is_staff == True:
+        user = CustomUser.objects.get(pk=request.user.id)
+        orders = Order.objects.filter(user=user).order_by('-id')
+    else:
+        orders = Order.objects.all().order_by('-id')
     if search:
         orders = orders.filter(user__first_name__icontains=search) | orders.filter(order_no__icontains=search)
     data = paginate_queryset(orders,5,request)
@@ -1296,7 +1299,10 @@ def get_all_orders(request):
 @permission_classes([IsAuthenticated])
 def order_details(request, id):
     try:
-        order = Order.objects.get(pk=id, user=request.user)
+        if not request.user.is_staff == True:
+            order = Order.objects.get(pk=id, user=request.user)
+        else:
+            order = Order.objects.get(pk=id)
     except Order.DoesNotExist:
         return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
 

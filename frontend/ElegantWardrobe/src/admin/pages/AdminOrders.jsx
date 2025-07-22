@@ -1,7 +1,7 @@
 import Pagination from "@/components/Pagination";
 import React, { useContext, useEffect, useState } from "react";
 import SearchComponent from "../components/SearchComponent";
-import api from "@/api";
+import api, { adminApi } from "@/api";
 import { ShopContext } from "@/context/ShopContext";
 import { SearchContext } from "@/context/SearchContextProvider";
 import { useNavigate } from "react-router-dom";
@@ -66,7 +66,9 @@ function AdminOrders() {
     
     const getOrders = async()=>{
       try {
-        const res = await api.get('get_all_orders',{params:{page:activePage,search:search}})       
+        const res = await adminApi.get('get_all_orders',{params:{page:activePage,search:search}})  
+        console.log(res.data.results);
+             
         setOrders(res.data.results)
         setHasNext(res.data.has_next)
         setHasPrevious(res.data.has_previous)
