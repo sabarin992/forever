@@ -8,6 +8,7 @@ import ProductItem from "../components/ProductItem";
 import api from "../api";
 import Pagination from "../components/Pagination";
 import CategoryFilter from "@/components/CategoryFilter";
+import PriceRangeFilter from "@/components/PriceRangeFilter";
 
 const Collection = () => {
   const { products, setProducts, search, showSearch } = useContext(ShopContext);
@@ -20,7 +21,6 @@ const Collection = () => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
-
 
   // toggle category
   const toggleCategory = (e) => {
@@ -176,14 +176,22 @@ const Collection = () => {
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
       {/* filter option */}
-      <CategoryFilter
-        showFilter={showFilter}
-        allCategories={allCategories}
-        selectedCategories={selectedCategories}
-        toggleCategory={toggleCategory}
-        setShowFilter={setShowFilter}
-
-      />
+      <div>
+        <CategoryFilter
+          showFilter={showFilter}
+          allCategories={allCategories}
+          selectedCategories={selectedCategories}
+          toggleCategory={toggleCategory}
+          setShowFilter={setShowFilter}
+        />
+        <PriceRangeFilter
+          showFilter={showFilter}
+          allCategories={allCategories}
+          selectedCategories={selectedCategories}
+          toggleCategory={toggleCategory}
+          setShowFilter={setShowFilter}
+        />
+      </div>
 
       {/* end */}
       {/* filter option

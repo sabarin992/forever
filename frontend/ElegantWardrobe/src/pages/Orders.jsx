@@ -4,7 +4,7 @@ import { ShopContext } from '../context/ShopContext'
 import { assets } from '../assets/assets'
 import api from '@/api'
 import Pagination from '@/components/Pagination'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 const Orders= () => {
   const {products,currency} = useContext(ShopContext)
@@ -73,6 +73,7 @@ const [isLoading, setIsLoading] = useState(true);
                     </div>
                     <p>Payment Status : {item.payment_status}</p>
                     <p className='mt-2'>Order Date: <span className='text-gray-400'>{item.order_date}</span></p>
+                    
                   </div>
                 </div>
                 <div className='md:w-1/2 flex justify-between'>

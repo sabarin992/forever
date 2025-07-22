@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from decimal import Decimal,ROUND_HALF_UP
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 # Custom User
@@ -44,7 +45,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['first_name', 'last_name', 'phone_number']
 
     def __str__(self):
-        return self.email
+        return f'{self.first_name} {self.last_name}'
     
     
 
@@ -526,6 +527,19 @@ class CategoryOffer(models.Model):
 
     def __str__(self):
         return f"{self.category.name} - {self.discount_percentage}%"
+    
+
+class Review(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    product_variant = models.ForeignKey('ProductVariant', on_delete=models.CASCADE)
+    title = models.CharField(max_length=100) 
+    description = models.TextField()
+    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.product_variant} - {self.rating}★"
+
 
     
     

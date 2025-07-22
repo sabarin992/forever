@@ -1,8 +1,7 @@
-
 import api from "@/api";
 import { ShopContext } from "@/context/ShopContext";
 import React, { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "@/components/InvoicePDF";
@@ -39,9 +38,9 @@ const OrderDetails = () => {
         resolve(true);
         return;
       }
-      
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
@@ -59,7 +58,7 @@ const OrderDetails = () => {
   // Retry payment function
   const retryPayment = async () => {
     setIsRetryingPayment(true);
-    
+
     try {
       // Load Razorpay script if not already loaded
       const scriptLoaded = await loadRazorpayScript();
@@ -71,18 +70,25 @@ const OrderDetails = () => {
 
       // Create new Razorpay order for retry payment
       const response = await api.post(`/retry_payment/${orderId}/`);
-      
+
       if (response.data.success) {
-        const { razorpay_order_id, amount, currency: paymentCurrency, razorpay_key } = response.data;
+        const {
+          razorpay_order_id,
+          amount,
+          currency: paymentCurrency,
+          razorpay_key,
+        } = response.data;
         console.log(amount);
-        
+
         // Initialize Razorpay payment
         const options = {
           key: razorpay_key, // Your Razorpay key ID from backend
           amount: (amount + amount * 0.12 + 40).toFixed(2), // Amount in paise
           currency: paymentCurrency || "INR",
           name: "Your Store Name",
-          description: `Retry Payment for Order #${orderDetails.order_no || orderId}`,
+          description: `Retry Payment for Order #${
+            orderDetails.order_no || orderId
+          }`,
           order_id: razorpay_order_id,
           handler: async (paymentResponse) => {
             try {
@@ -93,17 +99,23 @@ const OrderDetails = () => {
                 razorpay_signature: paymentResponse.razorpay_signature,
                 order_id: orderId,
               });
-              
+
               if (verifyResponse.data.success) {
-                toast.success("Payment successful! Your order is being processed.");
+                toast.success(
+                  "Payment successful! Your order is being processed."
+                );
                 // Refresh order details to show updated payment status
                 setIsChangeOrderItem(!isChangeOrderItem);
               } else {
-                toast.error("Payment verification failed. Please contact support.");
+                toast.error(
+                  "Payment verification failed. Please contact support."
+                );
               }
             } catch (error) {
               console.error("Payment verification error:", error);
-              toast.error("Payment verification failed. Please contact support.");
+              toast.error(
+                "Payment verification failed. Please contact support."
+              );
             }
           },
           prefill: {
@@ -127,24 +139,30 @@ const OrderDetails = () => {
         };
 
         const rzp = new window.Razorpay(options);
-        
+
         rzp.on("payment.failed", (response) => {
           console.error("Payment failed:", response.error);
-          toast.error(`Payment failed: ${response.error.description || "Please try again"}`);
+          toast.error(
+            `Payment failed: ${
+              response.error.description || "Please try again"
+            }`
+          );
           setIsRetryingPayment(false);
         });
 
         rzp.open();
       } else {
-        toast.error(response.data.message || "Failed to initiate payment retry");
+        toast.error(
+          response.data.message || "Failed to initiate payment retry"
+        );
         setIsRetryingPayment(false);
       }
     } catch (error) {
       console.error("Retry payment error:", error);
       toast.error(
-        error?.response?.data?.error || 
-        error?.response?.data?.message || 
-        "Failed to retry payment. Please try again."
+        error?.response?.data?.error ||
+          error?.response?.data?.message ||
+          "Failed to retry payment. Please try again."
       );
       setIsRetryingPayment(false);
     }
@@ -168,14 +186,22 @@ const OrderDetails = () => {
           <span className="inline-block px-3 py-1 mt-2 bg-yellow-400 text-yellow-800 rounded-md text-sm font-medium">
             {orderDetails.status}
           </span>
-          
+
           {/* Payment Pending Warning */}
           {shouldShowRetryPayment() && (
             <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-400 rounded-md">
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  <svg
+                    className="h-5 w-5 text-red-400"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </div>
                 <div className="ml-3">
@@ -184,7 +210,8 @@ const OrderDetails = () => {
                   </h3>
                   <div className="mt-2 text-sm text-red-700">
                     <p>
-                      Your payment for this order is still pending. Please complete the payment to process your order.
+                      Your payment for this order is still pending. Please
+                      complete the payment to process your order.
                     </p>
                   </div>
                 </div>
@@ -208,13 +235,15 @@ const OrderDetails = () => {
           </div>
           <div className="bg-gray-50 p-4 rounded-lg">
             <h2 className="font-medium text-gray-700 mb-2">Payment Status</h2>
-            <p className={`text-gray-600 ${
-              orderDetails.payment_status?.toLowerCase() === "payment_pending" 
-                ? "text-red-600 font-semibold" 
-                : orderDetails.payment_status?.toLowerCase() === "paid"
-                ? "text-green-600 font-semibold"
-                : ""
-            }`}>
+            <p
+              className={`text-gray-600 ${
+                orderDetails.payment_status?.toLowerCase() === "payment_pending"
+                  ? "text-red-600 font-semibold"
+                  : orderDetails.payment_status?.toLowerCase() === "paid"
+                  ? "text-green-600 font-semibold"
+                  : ""
+              }`}
+            >
               {orderDetails.payment_status}
             </p>
           </div>
@@ -277,8 +306,22 @@ const OrderDetails = () => {
                   ) : null}
                 </div>
                 <div className="flex flex-col items-center">
-                  <h2 className="font-medium text-gray-700 mb-2">Status</h2>
-                  <p className="text-gray-600">{item.status}</p>
+                  <div>
+                    <h2 className="font-medium text-gray-700 mb-2">Status</h2>
+                    <p className="text-gray-600">{item.status}</p>
+                  </div>
+                  <div>
+                    <button
+                      className="text-blue-600"
+                      onClick={() => {
+                        navigate("/add-review-ratings", {
+                          state: { productId: item.product_variant_id },
+                        });
+                      }}
+                    >
+                      Rate & Review Product
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -298,31 +341,36 @@ const OrderDetails = () => {
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
           <h2 className="font-medium text-gray-700 mb-4">Price Details</h2>
           <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Total Price:</span>
+              <span className="text-gray-800">
+                {currency}
+                {orderDetails.total_price}
+              </span>
+            </div>
 
             <div className="flex justify-between">
-                <span className="text-gray-600">Total Price:</span>
-                <span className="text-gray-800">{currency}{orderDetails.total_price}</span>
-              </div>
+              <span className="text-gray-600">Total Discount:</span>
+              <span className="text-gray-800">
+                {currency}
+                {orderDetails.total_discount}
+              </span>
+            </div>
 
-             <div className="flex justify-between">
-                <span className="text-gray-600">Total Discount:</span>
-                <span className="text-gray-800">{currency}{orderDetails.total_discount}</span>
-              </div>
-
-             {
-              orderDetails.coupon_discount?
-               <div className="flex justify-between">
+            {orderDetails.coupon_discount ? (
+              <div className="flex justify-between">
                 <span className="text-gray-600">Coupon Discount:</span>
-                <span className="text-gray-800">{orderDetails.coupon_discount}%</span>
+                <span className="text-gray-800">
+                  {orderDetails.coupon_discount}%
+                </span>
               </div>
-              :null
-             }
-
+            ) : null}
 
             <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
               <span>Total:</span>
               <span>
-                {currency}{orderDetails?.final_amount}
+                {currency}
+                {orderDetails?.final_amount}
               </span>
             </div>
           </div>
@@ -349,16 +397,42 @@ const OrderDetails = () => {
               >
                 {isRetryingPayment ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Processing...
                   </>
                 ) : (
                   <>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
                     </svg>
                     Retry Payment
                   </>
@@ -488,7 +562,7 @@ export default OrderDetails;
 //                   orderItemId={orderItemId}
 //                   showReturnModal={showReturnModal}
 //                   setShowReturnModal={setShowReturnModal}
-//                   isChangeOrderItem = {isChangeOrderItem} 
+//                   isChangeOrderItem = {isChangeOrderItem}
 //                   setIsChangeOrderItem = {setIsChangeOrderItem}
 //                 />
 //               )}

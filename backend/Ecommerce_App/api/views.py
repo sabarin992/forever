@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from collections import defaultdict
-from .serializer import ProductVariantSerializer,RegisterSerializer,CouponSerializer,ProductOfferSerializer,CategoryOfferSerializer
+from .serializer import ProductVariantSerializer,RegisterSerializer,CouponSerializer,ProductOfferSerializer,CategoryOfferSerializer,ReviewSerializer
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
@@ -22,7 +22,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 from rest_framework.pagination import PageNumberPagination
 import math
-from .models import Category,CustomUser,Product,ProductVariant,ProductImage,Address,CartItem,Order,OrderItem,OrderItemReturn,Coupon,Wishlist,Wallet,CouponUsage,ProductOffer,CategoryOffer
+from .models import Category,CustomUser,Product,ProductVariant,ProductImage,Address,CartItem,Order,OrderItem,OrderItemReturn,Coupon,Wishlist,Wallet,CouponUsage,ProductOffer,CategoryOffer,Review
 import requests as req
 from django.core.files.base import ContentFile
 from urllib.parse import urlparse
@@ -33,13 +33,14 @@ from .models import Product, ProductVariant
 import razorpay
 from django.conf import settings
 from decimal import Decimal
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
 import logging
 from django.db.models.functions import Lower
 from django.utils import timezone
 from django.db.models import Sum, Count, F
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser,IsAuthenticated
 from datetime import timedelta, datetime
 import pandas as pd
 import io
@@ -48,6 +49,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from decouple import config
+from rest_framework import generics
 
 
 
@@ -1023,7 +1025,7 @@ def add_to_cart(request):
             cart_item.quantity += 1
             cart_item.save()
             return Response('Incremented the product by 1', status=status.HTTP_200_OK)
-        except ValidationError as e:
+        except DjangoValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     else:
         # Remove from wishlist if exists
@@ -1036,7 +1038,7 @@ def add_to_cart(request):
                 # quantity=quantity
             )
             return Response('Product added to cart', status=status.HTTP_200_OK)
-        except ValidationError as e:
+        except DjangoValidationError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1083,7 +1085,7 @@ def update_cart(request,id):
         cart.quantity = int(request.data["quantity"])
         cart.save()
         return Response('success')
-    except ValidationError as e:
+    except DRFValidationError as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -1283,6 +1285,7 @@ def order_details(request, id):
     order_items = [
         {
             "item_id":item.id,
+            "product_variant_id":item.product_variant.id,
             "product_name": item.product_variant.product.name,
             "status":item.status,
             "variant": {
@@ -2381,3 +2384,37 @@ class CategoryOfferViewSet(viewsets.ModelViewSet):
             "categories": [{"id":category.id,"name":category.name} for category in Category.objects.filter(is_active=True)],
             "category_offers": serializer.data
         }, status=status.HTTP_200_OK)
+
+
+
+# 🔹 Add Review View
+class AddReviewView(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        product_variant = serializer.validated_data.get('product_variant')
+
+        # Check if the user has an order item with the given product_variant and status=DELIVERED
+        has_delivered = OrderItem.objects.filter(
+            order__user=user,
+            product_variant=product_variant,
+            status='DELIVERED'
+        ).exists()
+
+        if not has_delivered:
+            raise DRFValidationError("You can only review a product that you have purchased and was delivered.")
+
+        # Save the review with the logged-in user
+        serializer.save(user=user)
+
+
+# 🔹 List Reviews for a Product Variant
+class ListReviewView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        product_variant_id = self.kwargs['product_variant_id']
+        return Review.objects.filter(product_variant_id=product_variant_id).order_by('-created_at')

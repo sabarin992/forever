@@ -1,8 +1,9 @@
 from rest_framework import serializers
-from .models import ProductVariant,ProductImage,CustomUser,Coupon,ProductOffer,CategoryOffer
+from .models import ProductVariant,ProductImage,CustomUser,Coupon,ProductOffer,CategoryOffer,Review
 from django.core.files.base import ContentFile
 import base64
 import uuid
+from django.utils.timesince import timesince
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -133,4 +134,20 @@ class CategoryOfferSerializer(serializers.ModelSerializer):
                 'valid_to': "The 'Valid To' date cannot be earlier than the 'Valid From' date."
             })
         return data
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()  # 👈 custom field
+    time_ago = serializers.SerializerMethodField()  # 👈 Add this
+    class Meta:
+        model = Review
+        fields = ['id', 'user', 'product_variant', 'title', 'description', 'rating', 'created_at','time_ago']
+        read_only_fields = ['user', 'created_at']
+
+    def get_user(self, obj):
+        # obj.user is the related CustomUser instance
+        return f"{obj.user.first_name} {obj.user.last_name}"
+    
+    def get_time_ago(self, obj):
+        return timesince(obj.created_at) + " ago"
     

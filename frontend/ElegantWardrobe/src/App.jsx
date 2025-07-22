@@ -58,6 +58,7 @@ import AddProductOffer from "./admin/offer/pages/AddProductOffer";
 import EditProductOffer from "./admin/offer/pages/EditProductOffer";
 import AddCategoryOffer from "./admin/offer/pages/AddCategoryOffer";
 import EditCategoryOffer from "./admin/offer/pages/EditCategoryOffer";
+import AddReviewRating from "./pages/AddReviewRating";
 
 const App = () => {
   const [token, setToken] = useState("");
@@ -139,6 +140,14 @@ const App = () => {
             element={
               <PrivateRoute>
                 <WishList />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="add-review-ratings"
+            element={
+              <PrivateRoute>
+                <AddReviewRating />
               </PrivateRoute>
             }
           />

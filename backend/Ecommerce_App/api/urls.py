@@ -112,6 +112,12 @@ urlpatterns = [
     path('forgot_password_verify_otp/',views.forgot_password_verify_otp),
     path('reset_forgot_password/',views.reset_forgot_password),
 
+    # reviews
+    # ========
+
+    path('add-review/', views.AddReviewView.as_view(), name='add-review'),
+    path('reviews/<int:product_variant_id>/', views.ListReviewView.as_view(), name='list-reviews'),
+
   
 
     
