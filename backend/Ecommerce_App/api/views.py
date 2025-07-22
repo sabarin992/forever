@@ -662,6 +662,10 @@ def filter_product(request):
     categories = request.GET.get("category")  # List of categories
     search = request.GET.get("search")  # Search query
     sort = request.GET.get('sort')  # Sorting order (asc/desc)
+    min_price = request.GET.get('minPrice')
+    max_price = request.GET.get('maxPrice')
+
+    print(f'min_price = {min_price} and max_price = {max_price}')
 
 
     # Subquery: get one variant per product
@@ -687,6 +691,10 @@ def filter_product(request):
     if search:
         products = products.filter(product__name__icontains=search)
 
+    if min_price and max_price:
+        products = products.filter(final_price__gte = min_price,final_price__lte = max_price)
+        print(products)
+
     # Step 4: Apply sorting if provided
     if sort:
         if sort == "asc":
@@ -697,6 +705,7 @@ def filter_product(request):
             products = products.annotate(lower_name=Lower("product__name")).order_by("lower_name")
         elif sort == "z_to_a":
             products = products.annotate(lower_name=Lower("product__name")).order_by("-lower_name")
+    
 
     # Step 5: Paginate the results
     data = paginate_queryset(products,8,request)

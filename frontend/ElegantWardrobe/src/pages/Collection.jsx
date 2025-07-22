@@ -21,7 +21,15 @@ const Collection = () => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
 
+
+  const submitHandler = (e)=>{
+        e.preventDefault();
+        console.log(minPrice,maxPrice);
+        
+    }
   // toggle category
   const toggleCategory = (e) => {
     if (selectedCategories.includes(e.target.value)) {
@@ -37,50 +45,21 @@ const Collection = () => {
   const applyFilter = async () => {
     const productCopy = products.slice();
 
-    // Based on Search
-    if (showSearch && search && selectedCategories.length > 0) {
       const res = await api.get("filter_product", {
         params: {
-          search: search,
-          category: selectedCategories.join(","),
-          page: activePage,
+          search: search?search:'',
+          category: selectedCategories.join(",")?selectedCategories.join(","):'',
+          page: activePage?activePage:'',
+          minPrice: minPrice?minPrice:'',
+          maxPrice: maxPrice?maxPrice:''
         },
       });
-      console.log("res", res.data);
+
       setProducts(res.data.results);
       setHasNext(res.data.has_next);
       setHasPrevious(res.data.has_previous);
       setTotalPages(res.data.total_pages);
-    }
-    // Based on Search
-    else if (showSearch && search) {
-      const res = await api.get("filter_product", {
-        params: { search: search, page: activePage },
-      });
-      console.log("res", res.data);
-      setProducts(res.data.results);
-      setHasNext(res.data.has_next);
-      setHasPrevious(res.data.has_previous);
-      setTotalPages(res.data.total_pages);
-    }
-    // Based on category
-    else if (selectedCategories.length > 0) {
-      const res = await api.get("filter_product", {
-        params: { category: selectedCategories.join(","), page: activePage },
-      });
-      setProducts(res.data.results);
-      setHasNext(res.data.has_next);
-      setHasPrevious(res.data.has_previous);
-      setTotalPages(res.data.total_pages);
-    } else {
-      const res = await api.get("filter_product", {
-        params: { page: activePage },
-      });
-      setProducts(res.data.results);
-      setHasNext(res.data.has_next);
-      setHasPrevious(res.data.has_previous);
-      setTotalPages(res.data.total_pages);
-    }
+
 
     setFilterProducts(productCopy);
   };
@@ -158,7 +137,7 @@ const Collection = () => {
 
   useEffect(() => {
     applyFilter();
-  }, [selectedCategories, search, showSearch, activePage]);
+  }, [selectedCategories, search, showSearch, activePage,minPrice,maxPrice]);
 
   useEffect(() => {
     sortProduct();
@@ -185,11 +164,11 @@ const Collection = () => {
           setShowFilter={setShowFilter}
         />
         <PriceRangeFilter
-          showFilter={showFilter}
-          allCategories={allCategories}
-          selectedCategories={selectedCategories}
-          toggleCategory={toggleCategory}
-          setShowFilter={setShowFilter}
+          minPrice={minPrice}
+          setMinPrice={setMinPrice}
+          maxPrice={maxPrice}
+          setMaxPrice={setMaxPrice}
+          submitHandler={submitHandler}
         />
       </div>
 
