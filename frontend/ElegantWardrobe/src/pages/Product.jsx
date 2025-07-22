@@ -229,7 +229,7 @@ const Product = () => {
                     ))}
                   </div>
                   <span className="text-gray-600 font-medium">
-                    (122 reviews)
+                    {/* (122 reviews) */}
                   </span>
                   <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
                     ⭐ Bestseller
@@ -518,7 +518,7 @@ const Product = () => {
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              Reviews (122)
+              Reviews
             </button>
           </div>
 
