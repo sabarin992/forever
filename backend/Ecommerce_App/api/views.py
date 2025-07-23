@@ -1959,7 +1959,9 @@ def generate_sales_report(request):
     
     # Calculate sales metrics
     total_orders = orders.count()
-    total_sales = orders.aggregate(total=Sum('total'))['total'] or 0
+    # total_sales = orders.aggregate(total=Sum('final_amount'))['final_amount'] or 0
+    total_sales = orders.aggregate(total=Sum('final_amount'))['total'] or 0
+
     
     # Get discount data from coupon usages related to these orders
     coupon_usages = CouponUsage.objects.filter(
@@ -1975,7 +1977,7 @@ def generate_sales_report(request):
     
     for order in orders:
         # Check if shipping_chrg exists in your order model, which you're deducting from total
-        original_amount = float(order.total) + float(order.shipping_chrg)
+        original_amount = float(order.final_amount) + float(order.shipping_chrg)
         
         # Look for coupon usage for this order
         coupon_usage = coupon_usages.filter(user=order.user).first()
@@ -2018,7 +2020,7 @@ def generate_sales_report(request):
             'user': order.user.email,
             'status': order.status,
             'payment_method': order.payment,
-            'total': float(order.total),
+            'total': float(order.final_amount),
             'items': []
         }
         
@@ -2065,7 +2067,7 @@ def generate_excel_report(report_data):
             'Customer': order['user'],
             'Status': order['status'],
             'Payment Method': order['payment_method'],
-            'Total': order['total']
+            'Total': order['final_amount']
         })
     
     orders_df = pd.DataFrame(orders_data)
@@ -2080,7 +2082,7 @@ def generate_excel_report(report_data):
                 'Variant': item['variant'],
                 'Quantity': item['quantity'],
                 'Price': item['price'],
-                'Total': item['total']
+                'Total': item['final_amount']
             })
     
     items_df = pd.DataFrame(items_data)
