@@ -2067,7 +2067,7 @@ def generate_excel_report(report_data):
             'Customer': order['user'],
             'Status': order['status'],
             'Payment Method': order['payment_method'],
-            'Total': order['final_amount']
+            'Total': order['total']
         })
     
     orders_df = pd.DataFrame(orders_data)
@@ -2082,7 +2082,7 @@ def generate_excel_report(report_data):
                 'Variant': item['variant'],
                 'Quantity': item['quantity'],
                 'Price': item['price'],
-                'Total': item['final_amount']
+                'Total': item['total']
             })
     
     items_df = pd.DataFrame(items_data)
