@@ -1103,8 +1103,9 @@ def update_cart(request,id):
         cart.quantity = int(request.data["quantity"])
         cart.save()
         return Response('success')
-    except DRFValidationError as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    except DjangoValidationError as e:
+        return Response({'error': e.messages[0]}, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 @api_view(['DELETE'])

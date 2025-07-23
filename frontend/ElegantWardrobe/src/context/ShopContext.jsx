@@ -35,7 +35,7 @@ const ShopContextProvider = (props) => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
-  const [cartError,setCartError] = useState(false)
+  const [cartError, setCartError] = useState(false);
 
   // Fetch products when ShopContextProvider mounts
   useEffect(() => {
@@ -43,7 +43,6 @@ const ShopContextProvider = (props) => {
       try {
         const res = await api.get("/products/");
         setProducts(res.data);
-        
       } catch (error) {
         console.error("Error fetching products:", error.message);
       }
@@ -61,19 +60,34 @@ const ShopContextProvider = (props) => {
             quantity: quantity,
           });
           setIsChangeQuantity(!isChangeQuantity);
-          setCartError(false)
+          setCartError(false);
           // console.log(res.data);
         } catch (error) {
-          setCartError(true)
-          if (error?.response?.data?.error) {
-            const match = error?.response?.data?.error.match(/'([^']+)'/);
-            const cleanMessage = match
-              ? match[1]
-              : error?.response?.data?.error;
+          // catch (error) {
+          //   setCartError(true)
+          //   if (error?.response?.data?.error) {
+          //     const match = error?.response?.data?.error.match(/'([^']+)'/);
+          //     const cleanMessage = match
+          //       ? match[1]
+          //       : error?.response?.data?.error;
+
+          //     console.log(cleanMessage);
+          //     toast.error(cleanMessage);
+          //   }
+          // }
+          setCartError(true);
+          const errorData = error?.response?.data;
+
+          if (errorData?.error) {
+            // Handle string or array type error messages
+            const cleanMessage = Array.isArray(errorData.error)
+              ? errorData.error[0] // take first error message
+              : errorData.error;
 
             console.log(cleanMessage);
             toast.error(cleanMessage);
-            // console.log(error?.response?.data?.error);
+          } else {
+            toast.error("Failed to update cart.");
           }
         }
       } else {
@@ -92,7 +106,7 @@ const ShopContextProvider = (props) => {
         });
         // console.log(res.data.cart_data);
 
-        setCartData(res.data.cart_data.results);       
+        setCartData(res.data.cart_data.results);
         setHasNext(res.data.cart_data.has_next);
         setHasPrevious(res.data.cart_data.has_previous);
         setTotalPages(res.data.cart_data.total_pages);
@@ -165,8 +179,7 @@ const ShopContextProvider = (props) => {
     isChangeWishList,
     setIsChangeWishList,
     wishListCount,
-    cartError
-
+    cartError,
   };
 
   return (
