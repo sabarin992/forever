@@ -54,7 +54,7 @@ const PaymentFailed = () => {
     try {
       // Create new Razorpay order for retry
       const response = await api.post("create_order/", {
-        totalAmount: orderDetails.total,
+        totalAmount: orderDetails.final_amount,
       });
 
       const data = response.data;
@@ -244,71 +244,63 @@ const PaymentFailed = () => {
       </div>
 
       {/* Price Details */}
-      <div className="border border-gray-200 rounded-lg p-6 mb-6">
-        <h2 className="text-xl font-semibold text-center mb-4 text-gray-900">
+      <div className="mb-6 rounded-lg border border-gray-200 p-6">
+        <h2 className="mb-4 text-center text-xl font-semibold text-gray-800">
           Price Details
         </h2>
-        <div className="space-y-2 max-w-xs mx-auto">
+        <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-gray-600">Items Total:</span>
-            <span className="text-gray-900">
-              {currency} {orderDetails?.total}
+            <span className="text-gray-600">Total Price:</span>
+            <span className="text-gray-800">
+              {currency}
+              {orderDetails.total_price}
             </span>
           </div>
 
           {/* GST */}
           {/* === */}
-          
-          {/* <div className="flex justify-between">
-            <span className="text-gray-600">GST (12%):</span>
-            <span className="text-gray-900">
-              {currency}
-              {((orderDetails?.total * 12) / 100)?.toFixed(2)}
-            </span>
-          </div> */}
 
-          {/* Shipping Fee  */}
+          {/* <div className="flex justify-between">
+                <span className="text-gray-600">GST (12%):</span>
+                <span className="text-gray-800">{currency}{(orderDetails.total*12)/100}</span>
+              </div> */}
+
+          {/* Shipping Fee */}
           {/* ============ */}
 
           {/* <div className="flex justify-between">
-            <span className="text-gray-600">Shipping Fee:</span>
-            <span className="text-gray-900">₹100</span>
-          </div> */}
+                <span className="text-gray-600">Shipping Fee:</span>
+                <span className="text-gray-800">{currency}100</span>
+              </div> */}
 
-          {/* discounted amount */}
+          {/* Discounted Amount */}
           {/* ================= */}
 
           <div className="flex justify-between">
-            <span className="text-gray-600">Discounted Amount:</span>
+            <span className="text-gray-600">Total Discount:</span>
             <span className="text-gray-800">
               {currency}
-              {orderDetails?.discounted_amount}
+              {orderDetails.total_discount}
             </span>
           </div>
-
-          {/* Total Amount */}
-          {/* ============= */}
+          {orderDetails.coupon_discount ? (
+            <div className="flex justify-between">
+              <span className="text-gray-600">Coupon Discount:</span>
+              <span className="text-gray-800">
+                {orderDetails.coupon_discount}%
+              </span>
+            </div>
+          ) : null}
 
           <div className="border-t border-gray-200 pt-2">
             <div className="flex justify-between font-semibold">
-              <span>Total Amount:</span>
+              <span>Final Amount:</span>
               <span>
                 {currency}
-                {orderDetails?.total - orderDetails?.discounted_amount}
+                {orderDetails?.final_amount}
               </span>
             </div>
           </div>
-          {/* <div className="flex justify-between pt-2 border-t border-gray-200 font-semibold">
-            <span className="text-gray-900">Total Amount:</span>
-            <span className="text-gray-900">
-              {currency}{" "}
-              {(
-                orderDetails?.total +
-                (orderDetails?.total * 12) / 100 +
-                100
-              )?.toFixed(2)}
-            </span>
-          </div> */}
         </div>
       </div>
 
