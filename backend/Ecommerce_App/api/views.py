@@ -1070,7 +1070,8 @@ def add_to_cart(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_cart_products(request):
-    carts = CartItem.objects.filter(user = request.user)
+    # carts = CartItem.objects.filter(user = request.user)
+    carts = CartItem.objects.filter(user=request.user).order_by('id')  # or 'created_at', 'product__name', etc.
     total_price = carts.aggregate(Sum('total_price'))
     total_discount = carts.aggregate(Sum('total_discount'))
     data = paginate_queryset(carts,5,request)
