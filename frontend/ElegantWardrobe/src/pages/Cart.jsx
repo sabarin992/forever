@@ -26,6 +26,8 @@ const Cart = () => {
     cartError,
   } = useContext(ShopContext);
   const navigate = useNavigate();
+  console.log(cartData);
+  
 
   // const removeCartItem = async(id)=>{
   //     try {
@@ -46,9 +48,9 @@ const Cart = () => {
       </div>
 
       <div className="max-w-6xl mx-auto p-4">
-        {cartData.map((productData, index) => (
+        {cartData.map((productData) => (
           <div
-            key={index}
+            key={productData.id}
             className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200"
           >
             {/* Mobile Layout */}
